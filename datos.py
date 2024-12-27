@@ -1,3 +1,4 @@
+from epic_cavern.lexico import Comando
 
 #Asocia una dirección a un token de movimiento.
 # N = 0, S = 1, etc.
@@ -40,7 +41,7 @@ class Localizacion(object):
             "S": {"*": self.mover_sur},
             "E": {"*": self.mover_este},
             "O": {"*": self.mover_oeste},
-            "COGER": {"*": self.coger},
+            "COGER": {"TODO": self._coger_todo, "*": self.coger},
             "DEJAR": {"*": self.dejar},
             "EXAMINAR": {"*": self.examinar},
         }
@@ -165,6 +166,14 @@ class Localizacion(object):
         del self.objetos[command.token_nombre]
         self._output.print("Ok.")
 
+        return Resultado.HECHO
+
+    def _coger_todo(self, command):
+        if not self.hay_objetos_visibles():
+            self._output.print("No hay nada que coger.")
+        objetos = list(self.objetos.keys())
+        for obj_token in objetos:
+            self.coger(Comando("no", "no", "no", obj_token))
         return Resultado.HECHO
 
     def _precondicion_dejar(self, token):

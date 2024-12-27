@@ -1,0 +1,16 @@
+Epic Cavern
+--------------
+
+El objetivo del juego es encontrar seis gemas y salir de la caverna. También podrás  salir aunque no las hayas encontrado todas. Ten cuidado porque hay varias situaciones en las que puedes morir. Si quieres un poco de ayuda, consulta el mapa. Las localizaciones en rojo pueden ser mortales.
+
+Toda la información del juego la tienes en el propio código.
+
+Si quieres saber los verbos y nombres que puedes usar, míralos en el archivo lexico.py. 
+
+Puedes guardar la partida con save y cargarla con load.
+
+Si te quedas atascado en algún puzle, mira datos.py y busca un elemento que tenga un nombre similar, por ejemplo, una localización o un objeto. aunque no entiendas el código, encontrarás verbos y mensajes que te darán una pista.
+
+
+
+ 

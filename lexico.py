@@ -81,6 +81,7 @@ def vocabulario():
         "rubí"   : "RUBI",
         "seta"   : "SETAS",
         "setas"  : "SETAS",
+        "todo": "TODO",
         "topacio": "TOPACIO",
         "vara": "VARA",
         "zafiro" : "ZAFIRO",

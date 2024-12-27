@@ -27,6 +27,13 @@ class TestLocalizacion(BaseTest):
         self.assertEqual(len(self.estado.inventario), 0)
         self.assertEqual(len(self.loc.objetos), 1)
 
+    def test_coger_todo(self):
+        self.add_loc(self.obj_cuchillo())
+        self.add_loc(self.obj_diapason())
+        last_line, resultado = self.comando("COGER", "TODO")
+        self.assertEqual(Resultado.HECHO, resultado)
+        self.assertEqual(len(self.estado.inventario), 2)
+
 #######
 
 class TestLoc22_Puerta(BaseTest):
@@ -332,7 +339,6 @@ class TestLocalizacionFinal(BaseTest):
 
     def test_llevas_todas_gemas(self):
         self._seis_gemas_a_inventario()
-        expected = "Mueres.\n"
         # print(self.loc.mostrar_descripcion())
         last_line, resultado = self.comando("EDU", "")
         # print(last_line)

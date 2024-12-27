@@ -40,9 +40,10 @@ class AllLinesOutput(object):
 
 class AutomaticInput(object):
 
-    def __init__(self):
+    def __init__(self, trace=False):
         self._commands = None
         self._index = 0
+        self._trace = trace
 
     def pulsa_intro(self):
         return
@@ -51,13 +52,17 @@ class AutomaticInput(object):
         # print(self._commands)
         # print(self._index)
         command = self._commands[self._index]
-        print(">> ", command)
+        if self._trace:
+            print(">> ", command)
         self._index += 1
         return command
 
     def set_commands(self, commands):
         self._commands = commands
         self._index = 0
+
+    def trace_on(self):
+        self._trace = True
 
 ####################################################
 
@@ -102,6 +107,9 @@ class BaseTest(unittest.TestCase):
 
     def add_inventario(self, objeto):
         self.estado.añade_inventario(objeto._token, objeto)
+
+    def add_loc(self, objeto):
+        self.loc.agregar_objeto(objeto._token, objeto)
 
     def _estoy_en(self):
         return self.estado.localizacion().nombre

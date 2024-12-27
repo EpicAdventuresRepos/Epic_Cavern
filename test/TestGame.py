@@ -31,23 +31,6 @@ class MyTestCase(unittest.TestCase):
         self.estado = Global.get_instance()
         load_data()
 
-    def _test_game(self):
-        self._commands(("S", "S", "SAVE", "FIN"))
-
-        #print(Global._instance._output)
-        #print(Global._instance._input)
-
-        main_game()
-
-        # asserts
-
-        Global._instance._input.set_commands(("LOAD", "N", "FIN"))
-        main_game()
-
-        print("Fin.")
-        # self.assertEqual(True, False)  # add assertion here
-
-
     def test_empanada_al_mimico(self):
         self._run(("S", "S", "S", "O"))
         #print(self._out._lines[-3:])
@@ -122,7 +105,7 @@ class MyTestCase(unittest.TestCase):
         self._run(("S", "E", "E", "E", "S", "S", "E", "E", "ex dibujos"))
         self.assertEqual("loc80_Guardián_del_espejo", self._estoy_en())
         self._run(("golpear diapason", "coger opalo", "I"))
-        print(self._out._lines[-6:])
+        #print(self._out._lines[-6:])
         self.assertEqual("Un ópalo", self._out.last_line())
 
     def test_coger_cuchillo(self):
@@ -137,7 +120,7 @@ class MyTestCase(unittest.TestCase):
         # self._out.trace_on()
         # self.test_diapason_y_teletransporte_1()
         self._run(("N", "O", "S", "ex cadaver", "coger vara", "i"))
-        print(self._out._lines[-6:])
+        #print(self._out._lines[-6:])
         self.assertEqual("loc59_Cadáver_y_derrumbamiento", self._estoy_en())
         self.assertEqual("Una vara dorada", self._out.last_line())
         #self.fail()
