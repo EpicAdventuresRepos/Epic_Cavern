@@ -1,9 +1,11 @@
+from dataclasses import dataclass
 
 def vocabulario():
     verbos = {
-        "encende": "ENCENDER",
         "abrir"  : "ABRIR",
+        "arol"   : "NO_MALDICION",
         "atacar" : "ATACAR",
+        "ayuda" : "AYUDA",
         "golpear": "ATACAR",
         "romper": "ATACAR",
         "coger"  : "COGER",
@@ -11,27 +13,32 @@ def vocabulario():
         "dar"    : "DAR",
         "ofrecer": "DAR",
         "dejar"  : "DEJAR",
+        "edu": "EDU",
+        "encende": "ENCENDER",
+        "ex": "EXAMINAR",
+        "examina": "EXAMINAR",
+        "fosco": "FOSCO",
+        "frotar": "FROTAR",
+        "olar": "SI_MALDICION",
         "poner"  : "DEJAR",
         "ragul": "RAGUL",
         "resid": "RESID",
+        "rola": "NO_MALDICION",
         "sacar"  :"SACAR",
+        "socorro": "AYUDA",
         "soltar" : "SOLTAR",
-        "fosco": "FOSCO",
-        "frotar" : "FROTAR",
         "i"      : "INV",
         "inventa": "INV",
         "ver"    : "VER",
+        "lee": "EXAMINAR",
+        "leer": "EXAMINAR",
+        "laro": "NO_MALDICION",
         "mirar"  : "VER",
         "m"      : "VER",
-        "ex"     : "EXAMINAR",
-        "examina": "EXAMINAR",
-        "lee": "EXAMINAR",
-        "leer"   : "EXAMINAR",
         "n"      : "N",
         "s"      : "S",
         "e"      : "E",
         "o"      : "O",
-        "edu"    : "EDU",
         "salir"  : "FIN_JUEGO",
         "quit"  : "FIN_JUEGO",
         "exit"  : "FIN_JUEGO",
@@ -50,6 +57,8 @@ def vocabulario():
         "cadáver": "CADAVER",
         "agua"   : "CHARCO",
         "charco" : "CHARCO",
+        "circulo": "CIRCULO",
+        "círculo": "CIRCULO",
         "cofre"  : "COFRE",
         "cuchill": "CUCHILLO",
         "diamant": "DIAMANTE",
@@ -87,7 +96,26 @@ def vocabulario():
         "zafiro" : "ZAFIRO",
     } # 36
 
-    return verbos, nombres
+    palabras_ignoradas = {
+        "el", "la", "los", "las", "un", "una", "unos", "unas",  # Artículos
+        "de", "del", "a", "al", "con", "sin", "por", "para", "en", "sobre", "entre", "tras",  # Preposiciones
+        "y", "o", "u", "ni",  # Conjunciones
+        "mi", "tu", "su", "sus", "mis", "tus", "nuestro", "nuestra", "vuestro", "vuestra",  # Posesivos
+        "ese", "esa", "esos", "esas", "este", "esta", "estos", "estas", "aquel", "aquella", "aquellos", "aquellas",
+        # Demostrativos
+        "yo", "tú", "él", "ella", "nosotros", "nosotras", "vosotros", "vosotras", "ellos", "ellas",
+        # Pronombres personales
+        "mío", "mía", "míos", "mías", "tuyo", "tuya", "suyo", "suya", "nuestro", "vuestra",  # Posesivos personales
+        "lo", "cual", "quien", "cuyo", "cuyos", "cuyas",  # Pronombres relativos
+        "que", "como", "cuando", "donde", "porque", "si", "aunque",  # Conectores
+        "pero", "más", "menos", "también", "además", "aun", "todavía",  # Adverbios comunes
+        "entonces", "después", "luego", "ahora", "antes", "mientras", "cuando",  # Términos temporales
+        "muy", "poco", "mucho", "bastante", "demasiado", "casi", "solo", "tan", "tanto",  # Intensificadores
+        "uno", "dos", "tres", "cuatro", "cinco", "muchos", "pocos", "varios", "algunos", "ninguno"
+        # Cantidades generales
+    }
+
+    return verbos, nombres, palabras_ignoradas
 
 
 
@@ -108,8 +136,32 @@ tokens = {
     "CARGAR_PARTIDA": Complemento.Cadena
 }
 
+
+### funciones ############################
+
+def _procesar_cadena(cadena):
+    CARACTERES = 7
+    palabras = cadena.split()  # Divide la cadena en palabras
+    palabras_procesadas = [palabra[:CARACTERES].lower() if len(palabra) > CARACTERES else palabra for palabra in palabras]
+    return palabras_procesadas
+
+
+def crear_comando(cadena):
+    _, _, ignorar = vocabulario()
+    palabras_bruto = _procesar_cadena(cadena)
+    palabras = [p for p in palabras_bruto if p not in ignorar]
+    if len(palabras) == 0:
+        user_command = Comando(verbo = None, nombre = None, token_verbo=None, token_nombre=None)
+    elif len(palabras) == 1:
+        user_command = comando(palabras[0])
+    else:
+        user_command = comando(palabras[0], palabras[1])
+
+    return user_command
+
+
 def comando(verbo, nombre="*"):
-    verbos, nombres = vocabulario()
+    verbos, nombres, _ = vocabulario()
     token_verbo = None
 
     for palabra, token in verbos.items():
@@ -128,7 +180,7 @@ def comando(verbo, nombre="*"):
     return Comando(verbo = verbo, nombre = nombre, token_verbo=token_verbo, token_nombre=token_nombre)
 
 
-from dataclasses import dataclass
+
 
 @dataclass(frozen=True)
 class Comando:
@@ -139,6 +191,9 @@ class Comando:
     nombre: str
     token_verbo: str
     token_nombre: str
+
+    def es_vacio(self):
+        return self.token_verbo is None
 
     def __str__(self):
         """

@@ -1,7 +1,7 @@
 import unittest
 
-from epic_cavern.lexico import Comando
-from epic_cavern.main import procesar_cadena, procesar_palabras, load_data, cmd_examinar_inventario
+from epic_cavern.lexico import Comando, _procesar_cadena
+from epic_cavern.main import procesar_palabras, load_data, cmd_examinar_inventario
 from epic_cavern.test.test_helppers import BaseTest
 
 
@@ -11,10 +11,12 @@ class MyTestCase(BaseTest):
         super().setUp("loc31_Inscripción")
         load_data()
 
-    def test_examinar_inscripcion(self):
-        palabras = procesar_cadena("ex inscripcion")
+    def test_procesar_cadena(self):
+        palabras = _procesar_cadena("ex inscripcion")
         self.assertEqual(["ex", "inscrip"], palabras)
-        user_command, valido = procesar_palabras(palabras, self.test_output)
+
+    def test_examinar_inscripcion(self):
+        user_command, valido = procesar_palabras("ex inscripcion", self.test_output)
         self.assertEqual(True, valido)  # add assertion here
 
     def test_examinar_obj_en_inventario(self):
@@ -24,9 +26,9 @@ class MyTestCase(BaseTest):
         self.assertEqual("Rubí rojo.",  self.test_output.last_line())
 
     def test_procesa_entrada_vacia(self):
-        c, v = procesar_palabras(list(), self.test_output)
+        c, v = procesar_palabras("", self.test_output)
         self.assertFalse(v)
-        self.assertIsNone(c)
+        self.assertTrue(c.es_vacio())
 
 
 

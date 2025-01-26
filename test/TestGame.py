@@ -13,10 +13,12 @@ class MyTestCase(unittest.TestCase):
     def _estoy_en(self):
         return self.estado.localizacion().nombre
 
-    def _run(self, commands):
+    def _run(self, commands, show=False):
         commands_fin = list(commands)
         commands_fin.append("FIN")
         self._commands(commands_fin)
+        if show:
+            print(commands_fin)
         main_game()
 
     def setUp(self):
@@ -55,12 +57,16 @@ class MyTestCase(unittest.TestCase):
 
     def test_abrir_cofre_con_llave_y_coger_esmeralda(self):
         # self._out.trace_on()
-        self._run(("S", "S", "S", "S", "E", "N", "coger llave", "I"))
-        self.assertEqual("loc38_Llave", self._estoy_en())
-        self.assertEqual("Una llave", self._out.last_line(2))
-        self._run(("S", "O", "O", "abrir cofre", "coger zafiro", "I"))
+        #self._run(("S", "S", "S", "S", "E", "N", "coger llave", "I"))
+        self.test_coger_llave_del_charco()
+        # self.assertEqual("loc38_Llave", self._estoy_en())
+        self.assertEqual("Una llave oxidada", self._out.last_line(2))
+        #self._run(("S", "O", "O", "abrir cofre", "coger zafiro", "I"))
+        self._run(("N", "O", "O", "O", "N", "O", "O", "O"))
+        self.assertEqual("loc33_Cofre_auténtico", self._estoy_en())
+        self._run(("abrir cofre", "coger zafiro", "I"))
         self.assertEqual("Llevas:", self._out.last_line(4))
-        self.assertEqual("Una llave", self._out.last_line(3))
+        self.assertEqual("Una llave oxidada", self._out.last_line(3))
         self.assertEqual("Un zafiro", self._out.last_line(2))
 
     def test_diapason_y_teletransporte_1(self):
@@ -94,7 +100,7 @@ class MyTestCase(unittest.TestCase):
         #print(self._out._lines[-5:])
         #print(self._out.last_line())
         self.assertTrue(self._out.last_line().startswith("El investigador se acerca."))
-        self._out.trace_on()
+        # self._out.trace_on()
         self._run(("ex puerta", "resid", "m", "coger topacio", "I"))
         #print(self._out._lines[-6:])
         self.assertEqual("Un topacio", self._out.last_line())
@@ -108,38 +114,36 @@ class MyTestCase(unittest.TestCase):
         #print(self._out._lines[-6:])
         self.assertEqual("Un ópalo", self._out.last_line())
 
-    def test_coger_cuchillo(self):
-        # self._out.trace_on()
-        # self.test_diapason_y_teletransporte_1()
-        self._run(("S", "E", "E", "E", "S", "S", "E", "S", "S", "E", "S", "ex charco", "coger cuchillo", "i"))
-        self.assertEqual("loc63_Charco", self._estoy_en())
-        self.assertEqual("Un cuchillo", self._out.last_line())
-
     def test_coger_vara(self):
-        self.test_coger_cuchillo()
-        # self._out.trace_on()
-        # self.test_diapason_y_teletransporte_1()
-        self._run(("N", "O", "S", "ex cadaver", "coger vara", "i"))
+        self.test_coger_llave_del_charco()
+        #self._out.trace_on()
+        self._run(("N", "O", "S"))
         #print(self._out._lines[-6:])
         self.assertEqual("loc59_Cadáver_y_derrumbamiento", self._estoy_en())
+        self._run(("ex cadaver", "coger vara", "i"))
         self.assertEqual("Una vara dorada", self._out.last_line())
         #self.fail()
 
     def test_coger_ojo_rojo(self):
         self.test_coger_vara()
+        self.assertEqual("loc59_Cadáver_y_derrumbamiento", self._estoy_en())
         # self._out.trace_on()
-        self._run(("N", "N", "N", "o", "N", "N", "e", "e", "frotar vara", "ex ojos", "sacar ojo", "m", "coger rubi", "i"))
-        # print(self._out._lines[-6:])
+        self._run(("N", "N", "N", "O", "S"))
+        self.assertEqual("loc92_Cuchillo_maldito", self._estoy_en())
+        self._run(("olar", "coger cuchillo", "i"))
+        self._run(("N", "N", "N", "E", "E", "frotar vara", "ex ojos", "sacar ojo", "m", "coger rubi", "i"))
+        #print(self._out._lines[-8:])
         self.assertEqual("loc15_Ojos_rojos", self._estoy_en())
         self.assertEqual("Un rubí", self._out.last_line())
-        self.assertEqual("Una vara dorada", self._out.last_line(3))
-        self.assertEqual("Un cuchillo", self._out.last_line(4))
+        self.assertEqual("Un cuchillo", self._out.last_line(3))
+        self.assertEqual("Una vara dorada", self._out.last_line(4))
 
     def test_coger_diamante(self):
         self.test_coger_vara()
         #self._out.trace_on()
-        self._run(("N", "N", "N", "O", "N", "N", "o", "o", "O", "S", "S", "S", "E", "E", "N", "frotar vara", "m", "coger diamante", "i"))
+        self._run(("N", "N", "N", "O", "N", "N", "O", "O", "O", "S", "S", "S", "E", "E", "N"))
         #print(self._out._lines[-6:])
+        self._run(("frotar vara", "m", "coger diamante", "i"))
         self.assertEqual("loc43_Oscura", self._estoy_en())
         self.assertEqual("Un diamante", self._out.last_line())
 
@@ -153,7 +157,7 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual("Una esmeralda", self._out.last_line())
 
     def test_camino_del_heroe_y_coger_jade(self):
-        self.test_coger_cuchillo()
+        self.test_coger_llave_del_charco()
         self._run(("N", "E", "N", "N", "ex inscripcion"))
         self.assertEqual("loc87_Viaje_del_héroe", self._estoy_en())
         self.assertTrue(self._out.last_line().startswith("Utur atravesó"))
@@ -166,12 +170,43 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual("loc50_Teletransporte", self._estoy_en())
 
     def test_salida_sin_todas_gemas(self):
-        self.test_coger_cuchillo()
+        self.test_coger_llave_del_charco()
         #self._out.trace_on()
         self._run(("N", "E", "E", "E", "S"))
         self.assertEqual("loc71_Salida", self._estoy_en())
         # print(self._out._lines[-6:])
         self.assertTrue(self._out.last_line().startswith("No has conseguido todas las gemas"))
+
+    def test_coger_llave_del_charco(self):
+        # self._out.trace_on()
+        # self.test_diapason_y_teletransporte_1()
+        self._run(("S", "E", "E", "E", "S", "S", "E", "S", "S", "E", "S", "ex charco", "coger llave", "i"))
+        self.assertEqual("loc63_Charco", self._estoy_en())
+        self.assertEqual("Una llave oxidada", self._out.last_line())
+
+    def test_coger_cuchillo_y_morir(self):
+        # self._out.trace_on()
+        self._run(("S", "E", "E", "E", "S", "S", "S", "coger cuchillo", "i"))
+        self.assertEqual("loc92_Cuchillo_maldito", self._estoy_en())
+        self.assertIn("Mueres", self._out.last_line())
+
+    def test_palabras_que_no_quitan_maldicion(self):
+        # self._out.trace_on()
+        self._run(("S", "E", "E", "E", "S", "S", "S", "rola", "laro", "arol", "coger cuchillo", "i"))
+        self.assertEqual("loc92_Cuchillo_maldito", self._estoy_en())
+        self.assertIn("Mueres", self._out.last_line())
+
+    def test_coger_cuchillo(self):
+        # self._out.trace_on()
+        self._run(("S", "E", "E", "E", "S", "S", "S", "olar", "coger cuchillo", "i"))
+        self.assertEqual("loc92_Cuchillo_maldito", self._estoy_en())
+        self.assertEqual("Un cuchillo", self._out.last_line())
+
+    def test_palabra_maldicion_otra_loc(self):
+        #self._out.trace_on()
+        self._run(("olar", "rola",), False)
+        self.assertEqual("No pasa nada.", self._out.last_line())
+        self.assertEqual("No pasa nada.", self._out.last_line(2))
 
 
 if __name__ == '__main__':

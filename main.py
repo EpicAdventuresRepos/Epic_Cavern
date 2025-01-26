@@ -1,7 +1,8 @@
 from epic_cavern.datos import Resultado, Global, Localizacion, ObjetoAventura, CofreAbreCierra, \
     CofreMimico, Puerta, LocalizacionIlusiones, Teletransporte, ObjetoGema, ExaminableEncuentra, LocalizacionGema, \
-    LocalizacionOjos, Espejo, LocalizacionFinal, LocalizacionLosetas, LocalizacionBalanza
-from epic_cavern.lexico import comando
+    LocalizacionOjos, Espejo, LocalizacionFinal, LocalizacionLosetas, LocalizacionBalanza, ObjetoMaldito, \
+    LocalizacionObjetoMaldito
+from epic_cavern.lexico import comando, crear_comando
 from epic_cavern.user_interfaces import ConsoleOutput, ConsoleInput
 from epic_cavern.datos import LocalizaciónVacía, Investigador
 
@@ -35,7 +36,7 @@ def load_data():
     loc33_Cofre_auténtico = Localizacion("loc33_Cofre_auténtico", "En una esquina de esta caverna ves un cofre.")
     loc35_Mímico = Localizacion("loc35_Mímico", "En una esquina de esta caverna ves un cofre.")
     loc37_Vacía = LocalizaciónVacía("loc37_Vacía")
-    loc38_Llave = LocalizaciónVacía("loc38_Llave")
+    # loc38_Llave = LocalizaciónVacía("loc38_Llave")
     loc41_Vacía = LocalizaciónVacía("loc41_Vacía")
     loc43_Oscura = LocalizacionGema("loc43_Oscura", "Oscura")
     loc46_Vacía = LocalizaciónVacía("loc46_Vacía")
@@ -63,6 +64,12 @@ def load_data():
     loc89_Losetas_2 = LocalizacionLosetas("loc89_Losetas_2", "Ante ti tienes tres losetas: la del este tiene una roca negra, la del norte tiene astillas de madera y la del oeste guijarros.\nTienes que pisar una de ellas.", 2)
     loc89_Losetas_3 = LocalizacionLosetas("loc89_Losetas_3", "Ante ti tienes tres losetas: la del este tiene charco de agua, la del norte tiene plumas de alas y la del oeste tienes arena negra.\nTienes que pisar una de ellas.", 2)
     loc90_Teletransporte = Localizacion("loc90_Teletransporte", "Notas una extraña energía cuando entras en esta caverna. En la pared de roca hay tallada una inscripción.")
+    loc91_Círculo = Localizacion("loc91_Círculo", "En el suelo de roca de esta caverna ves dibujado un gran círculo ritual.")
+    loc92_Cuchillo_maldito = LocalizacionObjetoMaldito("loc92_Cuchillo_maldito", "Un aura de maldad llena esta caverna.", "CUCHILLO", "SI_MALDICION")
+
+    """
+    Añadir dos descripciones al cuchillo
+    """
 
     # Conexiones
     loc1_Caida.conectar(1, loc2_Vacía)
@@ -84,7 +91,10 @@ def load_data():
     loc33_Cofre_auténtico.conectar(2, loc31_Inscripción)
     loc31_Inscripción.conectar(1, loc35_Mímico)
     loc31_Inscripción.conectar(2, loc37_Vacía)
-    loc38_Llave.conectar(1, loc37_Vacía)
+
+    # loc38_Llave.conectar(1, loc37_Vacía)
+    loc91_Círculo.conectar(1, loc37_Vacía)
+
     loc37_Vacía.conectar(2, loc41_Vacía)
     loc41_Vacía.conectar(0, loc43_Oscura)
     loc41_Vacía.conectar(1, loc46_Vacía)
@@ -119,6 +129,11 @@ def load_data():
     loc89_Losetas_2.conectar(2, loc89_Losetas_3, False)
     loc89_Losetas_3.conectar(2, loc90_Teletransporte, False)
 
+    # loc91_Círculo
+    # loc92_Cuchillo_maldito
+    loc92_Cuchillo_maldito.conectar(0, loc82_Vacía)
+
+
     locs = {
         "loc1_Caida": loc1_Caida,
         "loc2_Vacía": loc2_Vacía,
@@ -140,7 +155,7 @@ def load_data():
         "loc33_Cofre_auténtico": loc33_Cofre_auténtico,
         "loc35_Mímico": loc35_Mímico,
         "loc37_Vacía": loc37_Vacía,
-        "loc38_Llave": loc38_Llave,
+        # "loc38_Llave": loc38_Llave,
         "loc41_Vacía": loc41_Vacía,
         "loc43_Oscura": loc43_Oscura,
         "loc46_Vacía": loc46_Vacía,
@@ -168,6 +183,8 @@ def load_data():
         "loc89_Losetas_2": loc89_Losetas_2,
         "loc89_Losetas_3": loc89_Losetas_3,
         "loc90_Teletransporte": loc90_Teletransporte,
+        "loc91_Círculo": loc91_Círculo,
+        "loc92_Cuchillo_maldito": loc92_Cuchillo_maldito
     }
 
     # Examinables
@@ -185,13 +202,18 @@ Utur cruzó la montaña de fuego.
 Utur cruzó la gran serpiente azul.
 """)
     loc90_Teletransporte.agregar_examinable("INSCRIPCION", "Dijo edu y se marchó.")
+    loc91_Círculo.agregar_examinable("CIRCULO", "El círculo representa la eternidad ya que no tiene ni principio ni fin. Los símbolos de su interior parecen símbolos de protección. Alrededor del círculo ves las letras A R O L.")
+
 
     estado = Global.get_instance()
     estado.set_localizacion(loc1_Caida)
     estado._locs = locs
 
     # Objetos
-    loc38_Llave.agregar_objeto("LLAVE", ObjetoAventura("LLAVE", "Llave oxidada que nadie sabe qué abre.", "LLAVE", "Una llave"))
+
+    """ Llevar la llave al charco y aprovechar esta para poner unaltar diab´llico con el cuchillo """
+    #loc38_Llave.agregar_objeto("LLAVE", ObjetoAventura("LLAVE", "Llave oxidada que nadie sabe qué abre.", "LLAVE", "Una llave"))
+
     loc48_Sala_de_música.agregar_objeto("DIAPASON", ObjetoAventura("DIAPASON", "Un pequeño diapasón que emite un tono agudo si lo golpeas suavemente.", "DIAPASON", "Un diapasón"))
     loc55_Ídolo.agregar_objeto("IDOLO", ObjetoAventura("IDOLO", "Pequeña figura, toscamente tallada en piedra, que representa un ídolo.", "IDOLO", "Un ídolo"))
     #loc76_Zafiro.agregar_objeto("ZAFIRO", ObjetoAventura("ZAFIRO", "Zafiro falso echo de cristal y sin ningún valor.", "ZAFIRO", "Un zafiro"))
@@ -206,6 +228,8 @@ Utur cruzó la gran serpiente azul.
     # opalo = ObjetoGema("OPALO", "Refleja todos los colores en su superficie y es de gran valor.", "OPALO", "Un ópalo")
     # Se crea dentro de la loc de los ojos
     # rubi = ObjetoGema("RUBI", "De color sangre y de gran valor.", "RUBI", "Un rubí")
+    cuchillo = ObjetoMaldito("CUCHILLO", "Un cuchillo con restos de sangre seca.", "CUCHILLO", "Un cuchillo")
+    loc92_Cuchillo_maldito.agregar_objeto(cuchillo.token, cuchillo)
 
     loc74_Ilusiones.agregar_objeto("AGUAMARINA", aguamarina)
     loc90_Teletransporte.agregar_objeto("JADE",jade)
@@ -227,11 +251,27 @@ Utur cruzó la gran serpiente azul.
     cadaver = ExaminableEncuentra("descripcion cadáver",
                                  ObjetoAventura("VARA", "Vara dorada. Frótala y emitirá luz durante un instante.", "VARA", "Una vara dorada"), "CADAVER")
     loc59_Cadáver_y_derrumbamiento.interactivos.append(cadaver)
-    charco = ExaminableEncuentra("descripcion charco", ObjetoAventura("CUCHILLO", "descriopcion.", "CUCHILLO", "Un cuchillo"), "CHARCO")
 
+    llave = ObjetoAventura("LLAVE", "Llave oxidada que a saber que abrirá.", "LLAVE",
+                           "Una llave oxidada")
+    charco = ExaminableEncuentra("descripcion charco", llave, "CHARCO")
     loc63_Charco.interactivos.append(charco)
+
     loc80_Guardián_del_espejo.interactivos.append(Espejo())
     loc90_Teletransporte.interactivos.append(Teletransporte(loc50_Teletransporte))
+
+    # De momento no hago nada con estos objetos
+    # No están todos
+    objetos = {
+        "AGUAMARINA": aguamarina,
+        "CUCHILLO": cuchillo,
+        "DIAMANTE": diamante,
+        "ESMERALDA": esmeralda,
+        "Jade": jade,
+        "LLAVE": llave,
+        "Topacio": topacio,
+        "ZAFIRO": zafiro,
+    }
 
 
 def load_interfaces():
@@ -248,43 +288,21 @@ Salir con vida ya es un éxito, pero para ti eso es poco. Encuentra las seis gem
     estado.input().pulsa_intro()
     # limpia la pantalla
 
-def procesar_cadena(cadena):
-    """
-    Divide una cadena en palabras y limita a 6 letras cualquier palabra que tenga más de 6 caracteres.
-
-    Args:
-        cadena (str): La cadena de entrada.
-
-    Returns:
-        str: Una nueva cadena con palabras procesadas.
-    """
-    CARACTERES = 7
-    palabras = cadena.split()  # Divide la cadena en palabras
-    palabras_procesadas = [palabra[:CARACTERES] if len(palabra) > CARACTERES else palabra for palabra in palabras]
-    return palabras_procesadas
-
 
 def procesar_palabras(palabras, output):
+    comando_jugador = crear_comando(palabras)
     es_valido = True
-    es_vacio = False
-    if len(palabras) == 0:
-        es_vacio = True
-        user_command = None
-    elif len(palabras) == 1:
-        user_command = comando(palabras[0])
-    else:
-        user_command = comando(palabras[0], palabras[1])
 
     # Ver si existen
-    if es_vacio or user_command.token_verbo is None:
+    if comando_jugador.es_vacio():
         output.print("Verbo no encontrado.")
         es_valido = False
 
-    if not es_vacio and user_command.token_nombre is None:
+    if not comando_jugador.es_vacio() and comando_jugador.token_nombre is None:
         output.print("Nombre no encontrado.")
         es_valido = False
 
-    return user_command, es_valido
+    return comando_jugador, es_valido
 
 
 def main_game():
@@ -307,8 +325,8 @@ def main_game():
 
         while resultado != Resultado.REINICIA and resultado != Resultado.FIN_JUEGO:
             user_input = _input.input(">> ")
-            palabras = procesar_cadena(user_input)
-            user_command, valido = procesar_palabras(palabras, output)
+            # palabras = procesar_cadena(user_input)
+            user_command, valido = procesar_palabras(user_input, output)
             # print(user_input, palabras, user_command)
             if not valido:
                 continue
@@ -372,7 +390,7 @@ def cmd_examinar_inventario(comando):
         output.print("No puedes examinar eso.")
     else:
         obj = estado.inventario[comando.token_nombre]
-        output.print(obj.descripcion)
+        output.print(obj.descripcion())
     return Resultado.HECHO
 
 
@@ -394,10 +412,32 @@ def cmd_cargar(comando):
     return Resultado.REINICIA
 
 
+def cmd_ayuda(comando):
+    output.print("""El objetivo del juego es encontrar la salida de la caverna llevando en el inventario las 6 gemas, pero podrás salir con menos.
+
+Comandos básicos:
+-------------------
+ n, s, e, o
+ i, inventario
+ m, repite la localización
+ cargar, guardar
+ fin, sale del juego
+ 
+ Si quiere pronunciar alguna palabra misteriosa, solo escríbela. 
+""")
+    return Resultado.HECHO
+
+
 def cmd_debug(comando):
     estado = Global.get_instance()
     output.print(estado)
     return Resultado.HECHO
+
+
+def cmd_no_pasa_nada(comando):
+    output.print("No pasa nada.")
+    return Resultado.HECHO
+
 
 def comandos_comunes():
     comandos = {
@@ -408,6 +448,9 @@ def comandos_comunes():
         "GUARDAR_PARTIDA": {"*": cmd_guardar},
         "CARGAR_PARTIDA": {"*": cmd_cargar},
         "DEBUG": {"*": cmd_debug},
+        "NO_MALDICION": {"*": cmd_no_pasa_nada},
+        "SI_MALDICION": {"*": cmd_no_pasa_nada},
+        "AYUDA": {"*": cmd_ayuda},
     }
     return comandos
 

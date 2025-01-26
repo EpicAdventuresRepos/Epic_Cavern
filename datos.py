@@ -6,10 +6,11 @@ movimiento = ("N", "S", "E", "O")
 nombre_movimiento = ("Norte", "Sur", "Este", "Oeste")
 movimiento_doble_sentido = (1, 0, 3, 2)
 
+
 class Resultado:
     """
     """
-    HECHO    = "Éxito"
+    HECHO = "Éxito"
     NO_HECHO = "Fallo"
     REINICIA = "Reinicia"
     FIN_JUEGO = "Salir del juego"
@@ -30,7 +31,7 @@ class Localizacion(object):
         # Cambiar a mapa token: objeto
         self.objetos = {}  # Objetos visibles en la localización Token : Objeto
         self.conexiones = {}  # Diccionario para las conexiones con otras localizaciones {dirección: Localizacion}
-        self.examinables = {} # Cosas examinables que no son objetos.
+        self.examinables = {}  # Cosas examinables que no son objetos.
         self.pnj = None
         self.interactivos = []
         self._estado = Global.get_instance()
@@ -55,7 +56,7 @@ class Localizacion(object):
     def hay_objetos_visibles(self):
         return len(self.objetos) > 0
 
-    def conectar(self, direccion, otra_localizacion, doble_sentido = True):
+    def conectar(self, direccion, otra_localizacion, doble_sentido=True):
         """
         Conecta esta localización con otra en una dirección específica.
 
@@ -82,7 +83,7 @@ class Localizacion(object):
         """
         descripcion = self._cadena_descripción()
         if self.pnj:
-            descripcion += self.pnj.esta_aqui()+"\n"
+            descripcion += self.pnj.esta_aqui() + "\n"
         #if self.objetos:
         #    descripcion += f"Objetos visibles: {', '.join(self.objetos)}.\n"
         descripcion += self._mostrar_salidas()
@@ -198,10 +199,11 @@ class Localizacion(object):
             return Resultado.HECHO
         if command.token_nombre in self.objetos:
             #print("B", self.objetos[command.token_nombre].descripcion)
-            self._output.print(self.objetos[command.token_nombre].descripcion)
+            self._output.print(self.objetos[command.token_nombre].descripcion())
             return Resultado.HECHO
         #print("Fail")
         return Resultado.NO_HECHO
+
 
 ###
 
@@ -209,13 +211,14 @@ class LocalizaciónVacía(Localizacion):
     def __init__(self, nombre):
         super().__init__(nombre, "Estás en una caverna vacía.")
 
+
 ###
 # sin uso
 class LocalizacionPuertaLLave(Localizacion):
     def __init__(self, nombre, descripcion, oscura=False):
         super().__init__(nombre, descripcion, oscura)
         self.puerta_cerrada = True
-        self.direccion_puerta = 3 # Oeste
+        self.direccion_puerta = 3  # Oeste
 
         self.comandos["ABRIR"] = {"PUERTA": self.abrir_puerta}
         self.examinables["PUERTA"] = "Tiene una cerradura para una llave."
@@ -233,7 +236,7 @@ class LocalizacionPuertaLLave(Localizacion):
             print("Abres la puerta con la llave.")
             self.puerta_cerrada = True
         else:
-            print("No puedes hacer eso") # Mensajes más cocnretos.
+            print("No puedes hacer eso")  # Mensajes más cocnretos.
         return Resultado.HECHO
 
 
@@ -260,6 +263,8 @@ class LocalizacionIlusiones(Localizacion):
 
     def hay_objetos_visibles(self):
         return False
+
+
 #######
 
 class LocalizacionTeletransporte(Localizacion):
@@ -280,6 +285,7 @@ class LocalizacionTeletransporte(Localizacion):
             descripcion += f"{', '.join(tmp_salidas)}.\n"
         return descripcion
 
+
 #######
 
 class LocalizacionBalanza(Localizacion):
@@ -292,7 +298,7 @@ class LocalizacionBalanza(Localizacion):
         self.comandos["COGER"] = {"*": self._coger}
         self.comandos["EXAMINAR"]["BALANZA"] = self._ex_balanza
 
-    def init_objeto_primer_plato(self,token, objeto):
+    def init_objeto_primer_plato(self, token, objeto):
         self.agregar_objeto(token, objeto)
         self._obj_primer_plato = objeto
 
@@ -317,7 +323,6 @@ class LocalizacionBalanza(Localizacion):
 
         self._output.print("Ok.")
         return Resultado.HECHO
-
 
     def _dejar(self, command):
         if self._obj_primer_plato is not None and self._obj_segundo_plato is not None:
@@ -348,6 +353,7 @@ class LocalizacionBalanza(Localizacion):
         self._output.print(texto)
         return Resultado.HECHO
 
+
 ##############
 
 class LocalizacionOscura(Localizacion):
@@ -363,7 +369,6 @@ class LocalizacionOscura(Localizacion):
             self._output.print("No llevas ninguna vara.")
         return Resultado.HECHO
 
-
     # Overload
     def _mover(self, direccion):
         resultado = super()._mover(direccion)
@@ -375,7 +380,7 @@ class LocalizacionOscura(Localizacion):
 ##############
 
 class LocalizacionGema(LocalizacionOscura):
-    def __init__(self, nombre, descripcion="Sin uso", obj_token = "DIAMANTE"):
+    def __init__(self, nombre, descripcion="Sin uso", obj_token="DIAMANTE"):
         super().__init__(nombre, descripcion)
         self.comandos["COGER"] = {"*": self._coger}
         self._obj_token = obj_token
@@ -400,9 +405,11 @@ class LocalizacionGema(LocalizacionOscura):
 
     def _coger(self, command):
         if command.token_nombre == self._obj_token and self._tiene_objeto and self.oscura:
-            self._output(f"Coges el {command.nombre} y la luz se ecxtingue. Las ciraturas se abalanzan sobre ti y desgarran tu cuerpo.\nHas muerto.")
+            self._output(
+                f"Coges el {command.nombre} y la luz se ecxtingue. Las ciraturas se abalanzan sobre ti y desgarran tu cuerpo.\nHas muerto.")
             return Resultado.FIN_JUEGO
         return super().coger(command)
+
 
 #########
 
@@ -428,7 +435,8 @@ class LocalizacionOjos(LocalizacionOscura):
 
     def _caer_y_morir(self, comando):
         if self.oscura:
-            self._output.print(f"Avanzas por la caverna a oscuras. No ves el agujero que hay en el centro y caes en él a una muerte segura.\n")
+            self._output.print(
+                f"Avanzas por la caverna a oscuras. No ves el agujero que hay en el centro y caes en él a una muerte segura.\n")
             return Resultado.FIN_JUEGO
         if not self.oscura and self._rubi_en_pared:
             self._output.print(
@@ -444,7 +452,8 @@ class LocalizacionOjos(LocalizacionOscura):
 
     def _examinar_ojos(self, _examinar_ojos):
         if self.oscura:
-            self._output.print(f"Avanzas por la caverna a oscuras. No ves el agujero que hay en el centro y caes en él a una muerte segura.\n")
+            self._output.print(
+                f"Avanzas por la caverna a oscuras. No ves el agujero que hay en el centro y caes en él a una muerte segura.\n")
             return Resultado.FIN_JUEGO
         if not self.oscura and self._rubi_en_pared:
             self._output.print(
@@ -459,7 +468,8 @@ class LocalizacionOjos(LocalizacionOscura):
 
     def _sacar_ojos(self, comando):
         if self.oscura:
-            self._output.print(f"Avanzas por la caverna a oscuras. No ves el agujero que hay en el centro y caes en él a una muerte segura.\n")
+            self._output.print(
+                f"Avanzas por la caverna a oscuras. No ves el agujero que hay en el centro y caes en él a una muerte segura.\n")
             return Resultado.FIN_JUEGO
         if not self.oscura and not self._rubi_en_pared:
             self._output.print(
@@ -476,19 +486,20 @@ class LocalizacionOjos(LocalizacionOscura):
             return Resultado.HECHO
         return Resultado.NO_HECHO
 
+
 ##############
 
 class LocalizacionLosetas(Localizacion):
     def __init__(self, nombre, descripcion, salida_correcta):
         super().__init__(nombre, descripcion)
         self._salida_correcta = salida_correcta
-        self._losetas={"N":0, "E":0, "O":0} # Esto es un poco absurdo.
-        self.comandos["N"]= {"*": self._pisar_loseta}
-        self.comandos["S"]= {"*": self._pisar_loseta}
-        self.comandos["E"]= {"*": self._pisar_loseta}
-        self.comandos["O"]= {"*": self._pisar_loseta}
+        self._losetas = {"N": 0, "E": 0, "O": 0}  # Esto es un poco absurdo.
+        self.comandos["N"] = {"*": self._pisar_loseta}
+        self.comandos["S"] = {"*": self._pisar_loseta}
+        self.comandos["E"] = {"*": self._pisar_loseta}
+        self.comandos["O"] = {"*": self._pisar_loseta}
 
-        self.salidas={"N":0, "S":1, "E":2, "O": 3}
+        self.salidas = {"N": 0, "S": 1, "E": 2, "O": 3}
 
     def _pisar_loseta(self, comando):
         verbo = comando.token_verbo
@@ -499,7 +510,8 @@ class LocalizacionLosetas(Localizacion):
             return Resultado.HECHO
         salida = self.salidas[verbo]
         if salida != self._salida_correcta:
-            self._output.print("Cuando pisas la loseta, un antiguo mecanismo se pone en marcha y una trampa letal se activa. Mueres al instante.\n")
+            self._output.print(
+                "Cuando pisas la loseta, un antiguo mecanismo se pone en marcha y una trampa letal se activa. Mueres al instante.\n")
             return Resultado.FIN_JUEGO
         #print("Call mover: ", salida)
         result = self._mover(salida)
@@ -509,6 +521,7 @@ class LocalizacionLosetas(Localizacion):
     # Override
     def _mostrar_salidas(self):
         return ""
+
 
 ##############
 
@@ -524,7 +537,7 @@ class LocalizacionFinal(Localizacion):
         super().__init__(nombre, descripcion)
         self._comandos_escritos = 0
         # self._todas_gemas = self._contar_gemas() == 6
-        self.conexiones[1] = None # Para que aparezca la salida en la descripción.
+        self.conexiones[1] = None  # Para que aparezca la salida en la descripción.
 
     def _contar_gemas(self):
         # Cuenta als gemas que lleva el fugador en su inventario
@@ -561,6 +574,33 @@ class LocalizacionFinal(Localizacion):
         return Resultado.FIN_JUEGO
 
 
+##########
+
+class LocalizacionObjetoMaldito(Localizacion):
+    def __init__(self, nombre, descripcion, token_objeto_maldito, token_quitar_maldicion):
+        super().__init__(nombre, descripcion)
+        self._token_objeto_maldito = token_objeto_maldito
+        self._token_palabra_quitar_maldicion = token_quitar_maldicion
+        self.comandos["COGER"] = {token_objeto_maldito: self._coger_objeto_maldito}
+        self.comandos[token_quitar_maldicion] = {"*": self._quitar_maldicion}
+
+    def _quitar_maldicion(self, command):
+        if self._token_objeto_maldito not in self.objetos \
+                or self.objetos[self._token_objeto_maldito].esta_maldito() is False:
+            self._output.print("No pasa nada")
+            return Resultado.HECHO
+        self._output.print("El aire de la habitación vibra. La maldición desaparece.")
+        self.objetos[self._token_objeto_maldito].quitar_maldicion()
+        return Resultado.HECHO
+
+    def _coger_objeto_maldito(self, comando):
+        if self._token_objeto_maldito not in self.objetos\
+                or self.objetos[self._token_objeto_maldito].esta_maldito() is False:
+            return self.coger(comando)
+        self._output.print(f"El {comando.nombre} cobra vida y te atraviesa el cuello. Mueres en un instante.")
+        return Resultado.FIN_JUEGO
+
+
 #########################################
 
 class ObjetoAventura:
@@ -575,22 +615,19 @@ class ObjetoAventura:
             breve_descripcion (str): Una breve descripción del objeto.
         """
         self.nombre = nombre
-        self.descripcion = descripcion
+        self._descripcion = descripcion
         self._token = token  # El atributo `token` es privado para hacer que sea de solo lectura
         self.breve_descripcion = breve_descripcion
 
     @property
     def token(self):
-        """
-        Devuelve el token del objeto (de solo lectura).
-        """
         return self._token
 
     def mostrar_breve_descripcion(self):
-        """
-        Devuelve la breve descripción del objeto.
-        """
         return self.breve_descripcion or f"No hay descripción breve para el {self.nombre}."
+
+    def descripcion(self):
+        return self._descripcion
 
     def __repr__(self):
         return f"ObjetoAventura(nombre='{self.nombre}', token='{self.token}')"
@@ -608,11 +645,36 @@ class ObjetoGema(ObjetoAventura):
     def es_gema(self):
         return True
 
+
+########
+
+class ObjetoMaldito(ObjetoAventura):
+    def __init__(self, nombre, descripcion, token, breve_descripcion):
+        super().__init__(nombre, descripcion, token, breve_descripcion)
+        self._maldito = True
+        self._descripción_maldito = None
+
+    def descripción_maldito(self, descripcion):
+        self._descripción_maldito = descripcion
+
+    def esta_maldito(self):
+        return self._maldito
+
+    def quitar_maldicion(self):
+        self._maldito = False
+
+    def descripcion(self):
+        if not self._maldito or self._descripción_maldito is None:
+            return super().descripcion()
+        return self._descripción_maldito
+
+
+
 ###########################################
 
 class ObjetoIterable(object):
 
-    def __init__(self, descripción = None, self_token = ""):
+    def __init__(self, descripción=None, self_token=""):
         self._descripción = descripción
         self._estado = Global.get_instance()
         self._token = self_token
@@ -637,11 +699,12 @@ class ObjetoIterable(object):
         self._out.print(self._descripción)
         return Resultado.HECHO
 
+
 ###########
 
 class CofreAbreCierra(ObjetoIterable):
 
-    def __init__(self, descripción = None, abierto = False, token_llave_abrir = None, obj_contenido = None, self_token = "COFRE"):
+    def __init__(self, descripción=None, abierto=False, token_llave_abrir=None, obj_contenido=None, self_token="COFRE"):
         """
 
         :param descripción:
@@ -691,9 +754,9 @@ class CofreAbreCierra(ObjetoIterable):
             # print("elf._obj_contenido is None")
             pass
 
-
     def __str__(self):
         return f"descripción = {self._descripción}, abierto = {self._abierto}, token_llave_abrir = {self._token_llave_abrir} \n"
+
 
 ###########
 
@@ -720,7 +783,8 @@ class CofreMimico(CofreAbreCierra):
             self._out.print("No tienes una empanada.")
         else:
             self._out.print("Le das la empanada al cofre.")
-            self._out.print("La tapa se abre mostrando una boca de afilados dientes que engulle la empanada en un instante.")
+            self._out.print(
+                "La tapa se abre mostrando una boca de afilados dientes que engulle la empanada en un instante.")
             self._out.print("Saltas hacia atrás justo a tiempo de que no te arranque la mano.")
             self._estado.saca_inventario(comando.token_nombre)
         return Resultado.HECHO
@@ -731,8 +795,8 @@ class CofreMimico(CofreAbreCierra):
 # To-Do: descripción y objeto
 class Puerta(CofreAbreCierra):
 
-    def __init__(self, obj_contenido = None):
-        super().__init__("Una pesada puerta de piedra sin cerradura.", obj_contenido= obj_contenido, self_token = "PUERTA")
+    def __init__(self, obj_contenido=None):
+        super().__init__("Una pesada puerta de piedra sin cerradura.", obj_contenido=obj_contenido, self_token="PUERTA")
         self.comandos["RAGUL"] = {"*": self.muerte}
         self.comandos["FOSCO"] = {"*": self.muerte}
         self.comandos["RESID"] = {"*": self.abre_puerta}
@@ -745,7 +809,6 @@ class Puerta(CofreAbreCierra):
 
         return Resultado.HECHO
 
-
     def muerte(self, loc, comando):
         self._out.print("Has invocado el nombre incorrecto.")
         self._out.print("La caverna se inunda de rayos de energía. Mueres al instante.")
@@ -755,7 +818,8 @@ class Puerta(CofreAbreCierra):
         if self._abierto:
             self._out.print("Nada sucede.")
             return Resultado.HECHO
-        self._out.print("La caverna tiembla cuando la puerta se abre ante el poder del nombre del sol.\nAl otro lado de la puerta ves un pequeño hueco.")
+        self._out.print(
+            "La caverna tiembla cuando la puerta se abre ante el poder del nombre del sol.\nAl otro lado de la puerta ves un pequeño hueco.")
         self._mover_objeto(loc)
         return Resultado.HECHO
 
@@ -764,7 +828,7 @@ class Puerta(CofreAbreCierra):
 
 class ExaminableEncuentra(CofreAbreCierra):
 
-    def __init__(self, descripción , obj_contenido, self_token):
+    def __init__(self, descripción, obj_contenido, self_token):
         """
         :param descripción:
         :param abierto:
@@ -782,17 +846,18 @@ class ExaminableEncuentra(CofreAbreCierra):
         #print(self._abierto)
         return Resultado.HECHO
 
+
 ###########
 
 class Espejo(ObjetoIterable):
 
-    def __init__(self, descripción = None, self_token = "ESPEJO"):
+    def __init__(self, descripción=None, self_token="ESPEJO"):
         super().__init__(descripción, self_token)
         self._descripción = descripción
         self._estado = Global.get_instance()
         self._out = self._estado._output
         self._token = self_token
-        self.comandos["ATACAR"] = {"ESPEJO" : self._atacar, "DIAPASON": self._romper_espejo}
+        self.comandos["ATACAR"] = {"ESPEJO": self._atacar, "DIAPASON": self._romper_espejo}
         self._espejo_entero = True
 
     # Override
@@ -806,7 +871,8 @@ class Espejo(ObjetoIterable):
 
     def _atacar(self, loc, comando):
         if self._espejo_entero:
-            self._out.print("Atacas al espejo. La criatura copia tus movimientos y te ataca a tui. su enorme fuerza te mata en el acto\n")
+            self._out.print(
+                "Atacas al espejo. La criatura copia tus movimientos y te ataca a tui. su enorme fuerza te mata en el acto\n")
             return Resultado.FIN_JUEGO
         self._out.print("No pasa nada.\n")
         return Resultado.HECHO
@@ -820,7 +886,9 @@ class Espejo(ObjetoIterable):
                     "El sonido agudo del diapasón hace tempblar al espejo hasta que se rompe. Entre sus trozos ves algo que brilla.\n")
                 self._espejo_entero = False
                 # Poner objeto
-                loc.agregar_objeto("OPALO", ObjetoGema("OPALO", "Refleja todos los colores en su superficie y es de gran valor.", "OPALO", "Un ópalo"))
+                loc.agregar_objeto("OPALO",
+                                   ObjetoGema("OPALO", "Refleja todos los colores en su superficie y es de gran valor.",
+                                              "OPALO", "Un ópalo"))
             else:
                 self._out.print("No lo llevas.\n")
         else:
@@ -849,7 +917,7 @@ class Teletransporte(ObjetoIterable):
 
 class Investigador(ObjetoIterable):
 
-    def __init__(self, nombre: str, descripcion: str, primera_vez = None, token="INVESTIGADOR"):
+    def __init__(self, nombre: str, descripcion: str, primera_vez=None, token="INVESTIGADOR"):
         """
         Constructor de la clase PNJ.
 
@@ -881,7 +949,8 @@ class Investigador(ObjetoIterable):
         #print("B")
 
         # ¿Cómo sé la loc a la que tengo que ir?
-        estado._output.print("Le das el ídolo.\n'Muy interesante, voy a estudiarlo. Puede que nos veamos pronto'\nEl investigador se marcha.")
+        estado._output.print(
+            "Le das el ídolo.\n'Muy interesante, voy a estudiarlo. Puede que nos veamos pronto'\nEl investigador se marcha.")
         #print("C")
 
         return Resultado.HECHO
@@ -891,7 +960,8 @@ class Investigador(ObjetoIterable):
         if estado.localizacion_actual.nombre != "loc22_Puerta":
             estado._output.print("No hay nada que examinar")
             return Resultado.HECHO
-        estado._output.print("El investigador se acerca.\n'Interesante inscripción, déjame que te la traduzca:'\n'solo el nombre del sol abrirá la puerta'\n'También hay una advertencia de que algo terrible sucederá si te equivocas de nombre'")
+        estado._output.print(
+            "El investigador se acerca.\n'Interesante inscripción, déjame que te la traduzca:'\n'solo el nombre del sol abrirá la puerta'\n'También hay una advertencia de que algo terrible sucederá si te equivocas de nombre'")
         return Resultado.HECHO
 
 
@@ -899,7 +969,6 @@ class Investigador(ObjetoIterable):
 
 
 class Global:
-
     _instance = None
 
     @staticmethod
@@ -949,4 +1018,3 @@ class Global:
 
     def input(self):
         return self._input
-

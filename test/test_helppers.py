@@ -77,8 +77,8 @@ class BaseTest(unittest.TestCase):
         self.estado.set_localizacion(self.estado._locs[loc_key])
         self.loc = self.estado._locs[loc_key]
 
-    def comando(self, token_verbo, token_nombre):
-        comando = Comando("no", "no", token_verbo, token_nombre)
+    def comando(self, token_verbo, token_nombre, verbo="no", nombre="no"):
+        comando = Comando(verbo, nombre, token_verbo, token_nombre)
         result = self.loc.run_command(comando)
         return self.test_output.last_line(), result
 

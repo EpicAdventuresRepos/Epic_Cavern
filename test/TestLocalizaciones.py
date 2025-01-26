@@ -1,7 +1,7 @@
 import unittest
 
 from epic_cavern.datos import Investigador, LocalizacionIlusiones, LocalizacionBalanza, Resultado, LocalizacionOscura, \
-    LocalizacionOjos, LocalizacionLosetas, LocalizacionFinal, ObjetoGema
+    LocalizacionOjos, LocalizacionLosetas, LocalizacionFinal, ObjetoGema, LocalizacionObjetoMaldito, ObjetoMaldito
 from epic_cavern.test.test_helppers import BaseTest
 
 
@@ -404,6 +404,43 @@ class TestLocalizacionIlusion(BaseTest):
         expected = "aguamarina"
         #self.assertNotIn(expected, self.loc._mostrar_salidas())
         pass
+
+
+#########
+
+class TestLocalizacionObjetoMaldito(BaseTest):
+
+    def setUp(self):
+        super().setUp("loc22_Puerta")
+        self.loc = LocalizacionObjetoMaldito("xx", "xx", token_objeto_maldito="PILA", token_quitar_maldicion="RESID")
+        objeto_maldito = ObjetoMaldito("nombre PILA", "descripcion PILA", "PILA", "PILA")
+        self.loc.agregar_objeto("PILA", objeto_maldito)
+
+    def test_coger_objeto_maldito(self):
+        # print(self.loc.mostrar_descripcion())
+        expected = "El cuchillo cobra vida y te atraviesa el cuello. Mueres en un instante."
+        last_line, resultado = self.comando("COGER", "PILA", nombre="cuchillo")
+        # print(last_line)
+        self.assertEqual(resultado, Resultado.FIN_JUEGO)
+        self.assertEqual(last_line, expected)
+
+    def test_quitar_maldicion(self):
+        # print(self.loc.mostrar_descripcion())
+        expected = "El aire de la habitación vibra. La maldición desaparece."
+        last_line, resultado = self.comando("RESID", "")
+        self.assertEqual(last_line, expected)
+        self.assertEqual(resultado, Resultado.HECHO)
+        last_line, resultado = self.comando("COGER", "PILA")
+        self.assertEqual(Resultado.HECHO, resultado)
+        self.assertEqual(last_line, "Ok.")
+
+    def test_quitar_maldicion_dos_veces(self):
+        # print(self.loc.mostrar_descripcion())
+        expected = "No pasa nada"
+        last_line, resultado = self.comando("RESID", "")
+        last_line, resultado = self.comando("RESID", "")
+        self.assertEqual(last_line, expected)
+        self.assertEqual(resultado, Resultado.HECHO)
 
 
 if __name__ == '__main__':

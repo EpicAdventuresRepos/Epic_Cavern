@@ -1,7 +1,7 @@
 import unittest
 
 from epic_cavern.datos import Global, Investigador, Resultado, ObjetoAventura, CofreAbreCierra, ExaminableEncuentra, \
-    Espejo, CofreMimico
+    Espejo, CofreMimico, ObjetoMaldito
 from epic_cavern.lexico import Comando
 from epic_cavern.test.test_helppers import BaseTest
 
@@ -189,7 +189,6 @@ class TestEspejo(BaseTest):
         last_line, resultado = self.comando("ATACAR", "ESPEJO")
         self.assertEqual(Resultado.FIN_JUEGO, resultado)
 
-
     def test_sin_dapason(self):
         expected_msg = "Una terrible criatura se refleja en el espejo copiando todos tus movimientos.\n"
         last_line, _ = self.comando("EXAMINAR", "ESPEJO")
@@ -217,6 +216,31 @@ class TestEspejo(BaseTest):
         last_line, _ = self.comando("ATACAR", "DIAPASON")
         expected_msg = "No pasa nada.\n"
         self.assertEqual(expected_msg, last_line)
+
+###############
+
+class TestObjetoMaldito(BaseTest):
+
+    def setUp(self):
+        super().setUp("loc3_Investigador")
+        self.descripcion = "Un cuchillo con restos de sangre seca."
+        self.descripcion_maldito = "Un cuchillo con restos de sangre seca."
+        self.examinable = ObjetoMaldito("CUCHILLO", self.descripcion, "CUCHILLO", "Un cuchillo")
+        #self.loc.interactivos.append(self.examinable)
+
+    def test_una_descricion(self):
+        self.assertTrue(self.examinable.esta_maldito())
+        self.assertEqual(self.descripcion, self.examinable.descripcion())
+        self.examinable.quitar_maldicion()
+        self.assertEqual(self.descripcion, self.examinable.descripcion())
+
+    def test_dos_descripciones(self):
+        d_m = "Sientes la maldición que pesa sobre el cuchillo."
+        self.examinable.descripción_maldito(d_m)
+        self.assertTrue(self.examinable.esta_maldito())
+        self.assertEqual(d_m, self.examinable.descripcion())
+        self.examinable.quitar_maldicion()
+        self.assertEqual(self.descripcion, self.examinable.descripcion())
 
 
 if __name__ == '__main__':
