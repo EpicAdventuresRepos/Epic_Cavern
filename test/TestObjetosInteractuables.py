@@ -3,8 +3,7 @@ import unittest
 from epic_cavern.datos import Global, Investigador, Resultado, ObjetoAventura, CofreAbreCierra, ExaminableEncuentra, \
     Espejo, CofreMimico, ObjetoMaldito
 from epic_cavern.lexico import Comando
-from epic_cavern.test.test_helppers import BaseTest
-
+from epic_cavern.test.test_helppers import BaseTest, AllLinesOutput
 
 
 class TestPNJ(BaseTest):
@@ -43,6 +42,20 @@ class TestPNJ(BaseTest):
         self.assertIsNotNone(self.estado._locs["loc22_Puerta"].pnj)
         self.assertEqual(self.test_output.last_line(), expected_msg)
 
+    def test_dar_idolo_sin_tenerlo(self):
+        # self.estado.añade_inventario("IDOLO", self.obj_idolo())
+
+        comando = Comando("no", "no", "DAR", "IDOLO")
+        expected_msg = "No tienes el ídolo."
+
+        result = self.estado._locs["loc3_Investigador"].run_command(comando)
+
+        # No se ha movido
+        self.assertEqual(result, Resultado.HECHO)
+        self.assertIsNotNone(self.estado._locs["loc3_Investigador"].pnj)
+        self.assertIsNone(self.estado._locs["loc22_Puerta"].pnj)
+        self.assertEqual(self.test_output.last_line(), expected_msg)
+
     def test_leer_inscripcion(self):
         self.estado.localizacion_actual = self.estado._locs["loc22_Puerta"]
         comando = Comando("no", "no", "EXAMINAR", "INSCRIPCION")
@@ -50,10 +63,11 @@ class TestPNJ(BaseTest):
         last_line = self.test_output.last_line()
         # print(last_line)
         self.assertEqual(last_line, "Está escrita en un idioma antiguo y no la entiendes.")
-
         self.estado._locs["loc22_Puerta"].pnj = Investigador("Investigador", "To-Do", "Primera")
-        self.estado.localizacion_actual.run_command(comando)
+        resultado = self.estado.localizacion_actual.run_command(comando)
+        # print("Resultado ", resultado)
         last_line = self.test_output.last_line()
+        # print(self.estado.localizacion_actual)
         # print(last_line)
         self.assertTrue(last_line.startswith("El investigador se acerca"))
 

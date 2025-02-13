@@ -305,12 +305,19 @@ def procesar_palabras(palabras, output):
     return comando_jugador, es_valido
 
 
+def notifica_reinicia(estado, loc_actual):
+    eventos = estado.events_manager()
+    eventos.reinicia(loc_actual)
+
+
 def main_game():
     global output
 
     estado = Global.get_instance()
     output = estado.output()
     _input = estado.input()
+    eventos = estado.events_manager()
+
     # print(estado._locs)
 
     mostrar_introducción(estado)
@@ -320,21 +327,34 @@ def main_game():
         resultado = None
         estado = Global.get_instance()
         loc_actual = estado.localizacion()
+        #notifica_reinicia(estado, loc_actual)
+        eventos.reinicia(loc_actual)
+
         output.print('\n'+loc_actual.mostrar_descripcion())
+        output.print_salidas(loc_actual._mostrar_salidas())
         imprimir_objetos(loc_actual)
 
         while resultado != Resultado.REINICIA and resultado != Resultado.FIN_JUEGO:
             user_input = _input.input(">> ")
+
+            # Hay GUIs que devuelven aquí un None si quieren terminar el juego
+            if user_input is None:
+                print("GUI insicates exit game.")
+                resultado = Resultado.FIN_JUEGO
+                break
+
             # palabras = procesar_cadena(user_input)
             user_command, valido = procesar_palabras(user_input, output)
-            # print(user_input, palabras, user_command)
+            # print(f"user_input: {user_input}, user_input {user_input}, user_command {user_command}, valido {valido}")
             if not valido:
+                eventos.fin_comando(user_command)
                 continue
 
             # Procesar comando en la loc en al que estoy
             loc_actual = estado.localizacion()
             resultado = loc_actual.run_command(user_command)
             if resultado != Resultado.NO_HECHO:
+                eventos.fin_comando(user_command)
                 continue
 
             # Procesar comando en los comandos por defecto.
@@ -353,9 +373,13 @@ def main_game():
             # Si no hay un HECHO es que no puedes hacerlo
             if resultado == Resultado.NO_HECHO or command_method is None:
                 output.print("No puedes hacerlo.")
+                resultado = Resultado.NO_HECHO
+
+            eventos.fin_comando(user_command)
 
     # Fin del juego.
     output.print("Bye.")
+
 
 def imprimir_objetos(loc_actual):
     if loc_actual.hay_objetos_visibles():
@@ -384,6 +408,8 @@ def cmd_fin(comando):
 
 def cmd_examinar_inventario(comando):
     # Mira si el objeto a examinar está en el inventario y muestra su descripción
+    # Si no está en el inventario, es repsosabilidadd e la localización o de un objeto interactuable de la localización
+    # dar repsuesta.
     estado = Global.get_instance()
     output = estado.output()
     if estado.en_inventario(comando.token_nombre) == False:

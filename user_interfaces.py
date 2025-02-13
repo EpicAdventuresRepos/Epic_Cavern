@@ -4,6 +4,10 @@ class ConsoleOutput(object):
     def print(self, msg):
         print(msg)
 
+    # alguinas GUI les viene bien diferenciar.
+    def print_salidas(self, msg):
+        print(msg)
+
     @staticmethod
     def _s_print(msg):
         print(msg)

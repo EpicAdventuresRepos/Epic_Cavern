@@ -1,4 +1,5 @@
 from epic_cavern.lexico import Comando
+from epic_cavern.utilities import Eventos
 
 #Asocia una dirección a un token de movimiento.
 # N = 0, S = 1, etc.
@@ -25,7 +26,7 @@ class Localizacion(object):
         :param descripcion: Descripción de la localización (str).
         :param oscura: Indica si la localización está a oscuras (bool).
         """
-        self.nombre = nombre
+        self._nombre = nombre
         self.descripcion = descripcion
         self.oscura = oscura  # Estado de iluminación de la localización
         # Cambiar a mapa token: objeto
@@ -48,7 +49,10 @@ class Localizacion(object):
         }
 
     def __str__(self):
-        return str(self.nombre) + " / Conexiones: " + str(self.conexiones)
+        return str(self._nombre) + " / Conexiones: " + str(self.conexiones)
+
+    def nombre(self):
+        return self._nombre
 
     def agregar_objeto(self, token, objeto):
         self.objetos[token] = objeto
@@ -86,11 +90,17 @@ class Localizacion(object):
             descripcion += self.pnj.esta_aqui() + "\n"
         #if self.objetos:
         #    descripcion += f"Objetos visibles: {', '.join(self.objetos)}.\n"
-        descripcion += self._mostrar_salidas()
+
+        # algunas GUIs necesitan que se haga por separado
+        #descripcion += self._mostrar_salidas()
 
         return descripcion
 
     def _mostrar_salidas(self):
+        """
+        Este método no debe llevar la _
+        :return:
+        """
         descripcion = f"Puedes ir hacia: "
         if len(self.conexiones) > 0:
             # print(self.conexiones)
@@ -267,27 +277,6 @@ class LocalizacionIlusiones(Localizacion):
 
 #######
 
-class LocalizacionTeletransporte(Localizacion):
-    def __init__(self, nombre, descripcion, oscura=False):
-        super().__init__(nombre, descripcion, oscura)
-
-    def _mostrar_salidas(self):
-        inversa_salidas = list()
-        for s in range(0, 3):
-            if s not in self.conexiones.keys():
-                inversa_salidas.append(s)
-        # print(self.conexiones.keys())
-        # print(inversa_salidas)
-        descripcion = f"Puedes ir hacia: "
-        if len(self.conexiones) > 0:
-            # print(self.conexiones)
-            tmp_salidas = [movimiento[k] for k in inversa_salidas]
-            descripcion += f"{', '.join(tmp_salidas)}.\n"
-        return descripcion
-
-
-#######
-
 class LocalizacionBalanza(Localizacion):
     def __init__(self, nombre, descripcion):
         super().__init__(nombre, descripcion)
@@ -303,6 +292,7 @@ class LocalizacionBalanza(Localizacion):
         self._obj_primer_plato = objeto
 
     def _coger(self, command):
+        msg = "Un potente chorro de ácido sale de la boca de la serpiente. Mueres rápido."
         if not self._precondicones_coger(command):
             return Resultado.HECHO
         objeto = self.objetos[command.token_nombre]
@@ -312,13 +302,13 @@ class LocalizacionBalanza(Localizacion):
 
         if objeto == self._obj_primer_plato:
             self._obj_primer_plato = None
-            if self._obj_segundo_plato == None:
-                self._output.print("Un potente chorro de ácido sale de la boca de la serpiente. Mueres rápido.")
+            if self._obj_segundo_plato is None:
+                self._output.print(msg)
                 return Resultado.FIN_JUEGO
         if objeto == self._obj_segundo_plato:
             self._obj_segundo_plato = None
-            if self._obj_primer_plato == None:
-                self._output.print("Un potente chorro de ácido sale de la boca de la serpiente. Mueres rápido.")
+            if self._obj_primer_plato is None:
+                self._output.print(msg)
                 return Resultado.FIN_JUEGO
 
         self._output.print("Ok.")
@@ -446,9 +436,6 @@ class LocalizacionOjos(LocalizacionOscura):
             self._output.print(
                 f"Es imposible sacar el ojo de la pared.\n")
         return Resultado.HECHO
-        #return Resultado.NO_HECHO
-        #print("Intentamos cojer.")
-        #return self._coger(comando)
 
     def _examinar_ojos(self, _examinar_ojos):
         if self.oscura:
@@ -673,7 +660,6 @@ class ObjetoMaldito(ObjetoAventura):
 ###########################################
 
 class ObjetoIterable(object):
-
     def __init__(self, descripción=None, self_token=""):
         self._descripción = descripción
         self._estado = Global.get_instance()
@@ -940,16 +926,19 @@ class Investigador(ObjetoIterable):
 
     def dar_idolo(self, loc, comando):
         #print("dar_idolo")
-        estado = Global.get_instance()
-        estado.en_inventario("IDOLO")
-        estado.saca_inventario("IDOLO")
+        # estado = Global.get_instance()
+        output = self._estado._output
+        if not self._estado.en_inventario("IDOLO"):
+            output.print("No tienes el ídolo.")
+            return Resultado.HECHO
+        self._estado.saca_inventario("IDOLO")
         #print("A")
-        estado._locs["loc3_Investigador"].pnj = None
-        estado._locs["loc22_Puerta"].pnj = self
+        self._estado._locs["loc3_Investigador"].pnj = None
+        self._estado._locs["loc22_Puerta"].pnj = self
         #print("B")
 
         # ¿Cómo sé la loc a la que tengo que ir?
-        estado._output.print(
+        output.print(
             "Le das el ídolo.\n'Muy interesante, voy a estudiarlo. Puede que nos veamos pronto'\nEl investigador se marcha.")
         #print("C")
 
@@ -957,7 +946,7 @@ class Investigador(ObjetoIterable):
 
     def examinar_dibujos(self, loc, comando):
         estado = Global.get_instance()
-        if estado.localizacion_actual.nombre != "loc22_Puerta":
+        if estado.localizacion_actual.nombre() != "loc22_Puerta":
             estado._output.print("No hay nada que examinar")
             return Resultado.HECHO
         estado._output.print(
@@ -988,14 +977,16 @@ class Global:
         self._output = None
         self._input = None
         self._locs = None
+        self._events = Eventos()
 
     def __str__(self):
         return f"Localización {self.localizacion_actual} / Inventario: {self.inventario}"
 
     def set_localizacion(self, localizacion_actual):
-        """
-        """
+        """ Raises cambio_loc event igf there is an event manager. """
         self.localizacion_actual = localizacion_actual
+        if self._events is not None:
+            self._events.cambio_loc(localizacion_actual)
 
     def localizacion(self):
         return self.localizacion_actual
@@ -1018,3 +1009,6 @@ class Global:
 
     def input(self):
         return self._input
+
+    def events_manager(self):
+        return self._events

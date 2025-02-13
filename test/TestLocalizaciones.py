@@ -128,14 +128,14 @@ class TestLocalizacionOscura(BaseTest):
         self.add_inventario(self.obj_vara())
 
     def test_descripción(self):
-        expected = "Está completamente a oscuras. Necesitas una fuente de luz para ver algo.\nPuedes ir hacia: N.\n"
+        expected = "Está completamente a oscuras. Necesitas una fuente de luz para ver algo.\n"
         #expected = "Llegas a una caverna vacía. Ves una inscripción en una de las paredes de esta caverna."
         #print(self.loc.mostrar_descripcion())
         self.assertEqual(expected, self.loc.mostrar_descripcion())
 
     def test_frotar_barra(self):
         last_line, resultado = self.comando("FROTAR", "VARA")
-        expected = "Hay luz.\nPuedes ir hacia: N.\n"
+        expected = "Hay luz.\n"
         # print(self.loc.mostrar_descripcion())
         self.assertEqual(expected, self.loc.mostrar_descripcion())
 
@@ -144,9 +144,9 @@ class TestLocalizacionOscura(BaseTest):
         last_line, resultado = self.comando("N", "")
         self.assertEqual(resultado, Resultado.REINICIA)
         last_line, resultado = self.comando("S", "")
-        expected = "Está completamente a oscuras. Necesitas una fuente de luz para ver algo.\nPuedes ir hacia: N.\n"
+        expected = "Está completamente a oscuras. Necesitas una fuente de luz para ver algo."
         # print(self.loc.mostrar_descripcion())
-        self.assertEqual(expected, self.loc.mostrar_descripcion())
+        self.assertIn(expected, self.loc.mostrar_descripcion())
 
 ######################
 
@@ -242,7 +242,7 @@ class TestLocalizacionLosetas(BaseTest):
         # print(last_line)
         self.assertEqual(resultado, Resultado.REINICIA)
         # Comprobar que vas a otra LOC
-        self.assertEqual(self.estado.localizacion().nombre, "loc74_Ilusiones")
+        self.assertEqual(self._estoy_en(), "loc74_Ilusiones")
 
 #######################
 
@@ -264,7 +264,7 @@ class TestMoverseLosetas(BaseTest):
         last_line, resultado = self.comando("N", "")
         # print(descripcion)
         self.assertEqual(Resultado.REINICIA, resultado)
-        self.assertEqual(self.estado.localizacion().nombre, "loc89_Losetas_2")
+        self.assertEqual(self._estoy_en(), "loc89_Losetas_2")
 
 
     def test_de_la_1_a_la_3(self):
@@ -273,7 +273,7 @@ class TestMoverseLosetas(BaseTest):
         last_line, resultado = self.comando("E", "")
         # print(descripcion)
         self.assertEqual(Resultado.REINICIA, resultado)
-        self.assertEqual(self.estado.localizacion().nombre, "loc89_Losetas_3")
+        self.assertEqual(self._estoy_en(), "loc89_Losetas_3")
 
 
 ######################

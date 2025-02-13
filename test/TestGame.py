@@ -11,7 +11,7 @@ class MyTestCase(unittest.TestCase):
         Global._instance._input.set_commands(commands)
 
     def _estoy_en(self):
-        return self.estado.localizacion().nombre
+        return self.estado.localizacion().nombre()
 
     def _run(self, commands, show=False):
         commands_fin = list(commands)

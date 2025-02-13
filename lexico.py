@@ -99,7 +99,7 @@ def vocabulario():
     palabras_ignoradas = {
         "el", "la", "los", "las", "un", "una", "unos", "unas",  # Artículos
         "de", "del", "a", "al", "con", "sin", "por", "para", "en", "sobre", "entre", "tras",  # Preposiciones
-        "y", "o", "u", "ni",  # Conjunciones
+        "y",  "u", "ni",  # Conjunciones # La "o", nos e puede ignorar
         "mi", "tu", "su", "sus", "mis", "tus", "nuestro", "nuestra", "vuestro", "vuestra",  # Posesivos
         "ese", "esa", "esos", "esas", "este", "esta", "estos", "estas", "aquel", "aquella", "aquellos", "aquellas",
         # Demostrativos

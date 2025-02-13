@@ -29,6 +29,9 @@ class AllLinesOutput(object):
             print(msg)
         self._lines.append(msg)
 
+    def print_salidas(self, msg):
+        self.print(msg)
+
     def last_line(self, index =2):
         index *= -1
         return self._lines[index]
@@ -112,4 +115,4 @@ class BaseTest(unittest.TestCase):
         self.loc.agregar_objeto(objeto._token, objeto)
 
     def _estoy_en(self):
-        return self.estado.localizacion().nombre
+        return self.estado.localizacion().nombre()
