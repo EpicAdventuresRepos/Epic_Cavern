@@ -1,7 +1,8 @@
 import unittest
 
-from epic_cavern.datos import Investigador, LocalizacionIlusiones, LocalizacionBalanza, Resultado, LocalizacionOscura, \
+from epic_cavern.datos_aventura import Investigador, LocalizacionBalanza, LocalizacionOscura, \
     LocalizacionOjos, LocalizacionLosetas, LocalizacionFinal, ObjetoGema, LocalizacionObjetoMaldito, ObjetoMaldito
+from epic_cavern.datos import Resultado
 from epic_cavern.test.test_helppers import BaseTest
 
 

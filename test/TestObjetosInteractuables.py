@@ -1,9 +1,10 @@
 import unittest
 
-from epic_cavern.datos import Global, Investigador, Resultado, ObjetoAventura, CofreAbreCierra, ExaminableEncuentra, \
+from epic_cavern.datos_aventura import  Investigador, ObjetoAventura, CofreAbreCierra, ExaminableEncuentra, \
     Espejo, CofreMimico, ObjetoMaldito
+from epic_cavern.datos import Resultado
 from epic_cavern.lexico import Comando
-from epic_cavern.test.test_helppers import BaseTest, AllLinesOutput
+from epic_cavern.test.test_helppers import BaseTest
 
 
 class TestPNJ(BaseTest):

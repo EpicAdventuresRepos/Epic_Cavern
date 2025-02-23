@@ -19,6 +19,8 @@ def vocabulario():
         "examina": "EXAMINAR",
         "fosco": "FOSCO",
         "frotar": "FROTAR",
+        "iniciar": "INICIAR",
+        "nuevo"  : "INICIAR",
         "olar": "SI_MALDICION",
         "poner"  : "DEJAR",
         "ragul": "RAGUL",
@@ -151,7 +153,7 @@ def crear_comando(cadena):
     palabras_bruto = _procesar_cadena(cadena)
     palabras = [p for p in palabras_bruto if p not in ignorar]
     if len(palabras) == 0:
-        user_command = Comando(verbo = None, nombre = None, token_verbo=None, token_nombre=None)
+        user_command = Comando.Vacio()
     elif len(palabras) == 1:
         user_command = comando(palabras[0])
     else:
@@ -184,6 +186,11 @@ def comando(verbo, nombre="*"):
 
 @dataclass(frozen=True)
 class Comando:
+
+    @staticmethod
+    def Vacio():
+        return Comando(None, None, None, None)
+
     """
     Clase inmutable que representa una acción con un verbo, un nombre, y un token asociado.
     """
@@ -200,3 +207,65 @@ class Comando:
         Devuelve una descripción completa de la acción.
         """
         return f"Acción: {self.verbo} {self.nombre} (Tokens: {self.token_verbo}, {self.token_nombre})"
+
+
+###############################
+
+class AnaLex(object):
+
+    def __init__(self, verbs, names, ignores, output):
+        self._verbs = verbs
+        self._names = names
+        self._output = output
+        self._ignores = ignores
+
+    def procesar_palabras(self, palabras):
+        comando_jugador = self._crear_comando(palabras)
+        es_valido = True
+
+        # Ver si existen
+        if comando_jugador.es_vacio():
+            self._output.print("Verbo no encontrado.")
+            es_valido = False
+
+        if not comando_jugador.es_vacio() and comando_jugador.token_nombre is None:
+            self._output.print("Nombre no encontrado.")
+            es_valido = False
+
+        return comando_jugador, es_valido
+
+    def _crear_comando(self, cadena):
+        palabras_bruto = self._procesar_cadena(cadena)
+        palabras = [p for p in palabras_bruto if p not in self._ignores]
+        if len(palabras) == 0:
+            user_command = Comando.Vacio()
+        elif len(palabras) == 1:
+            user_command = self._comando(palabras[0])
+        else:
+            user_command = self._comando(palabras[0], palabras[1])
+
+        return user_command
+
+    def _comando(self,verbo, nombre="*"):
+        token_verbo = None
+
+        for palabra, token in self._verbs.items():
+            if palabra == verbo.lower():
+                token_verbo = token
+                break
+
+        token_nombre = None
+        if nombre == "*":
+            token_nombre = nombre
+        else:
+            for palabra, token in self._names.items():
+                if palabra == nombre.lower():
+                    token_nombre = token
+                    break
+        return Comando(verbo=verbo, nombre=nombre, token_verbo=token_verbo, token_nombre=token_nombre)
+
+    def _procesar_cadena(self, cadena):
+        CARACTERES = 7
+        palabras = cadena.split()  # Divide la cadena en palabras
+        palabras_procesadas = [palabra[:CARACTERES].lower() if len(palabra) > CARACTERES else palabra for palabra in palabras]
+        return palabras_procesadas

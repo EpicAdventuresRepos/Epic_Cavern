@@ -23,6 +23,8 @@ class EventNotifier:
             else:
                 getattr(subscriber, nombre_metodo)(param)
 
+    def len(self):
+        return len(self._subscribers)
 
 class Eventos(object):
     """
@@ -33,6 +35,7 @@ class Eventos(object):
         self._en_cambio_loc = EventNotifier()
         self._en_reinicia = EventNotifier()
         self._en_fin_comando = EventNotifier()
+        self._en_user_input = EventNotifier()
 
     ## No lo us, utilizo RENICIA en su lugar ####
 
@@ -44,6 +47,21 @@ class Eventos(object):
 
     def cambio_loc(self, nueva_loc):
         self._en_cambio_loc.notify("cambio_loc", nueva_loc)
+
+
+    ## Cuando alguien quiere porcesar el input por su cuenta, por ejemplo un pnj en una conversacón
+
+    def sub_player_input(self, subscriber):
+        self._en_user_input.subscribe(subscriber)
+
+    def unsub_player_input(self, subscriber):
+        self._en_user_input.unsubscribe(subscriber)
+
+    def player_input(self, input_text):
+        self._en_user_input.notify("player_input", input_text)
+
+    def player_input_has_subs(self):
+        self._en_user_input.len()
 
 
     ## Cuando un comando devuelve RENICIA (se vuelev a mostrar la loc) ####

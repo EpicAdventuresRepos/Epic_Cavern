@@ -1,8 +1,8 @@
 import unittest
 
 from epic_cavern.datos import Global
-from epic_cavern.main import main_game, load_data, load_interfaces
-from epic_cavern.test.test_helppers import LastLineOutput, AutomaticInput, AllLinesOutput
+from epic_cavern.main import main_game, load_data
+from epic_cavern.test.test_helppers import AutomaticInput, AllLinesOutput
 
 
 class MyTestCase(unittest.TestCase):

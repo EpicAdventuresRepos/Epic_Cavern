@@ -1,8 +1,10 @@
 import unittest
 
-from epic_cavern.datos import Global, ObjetoAventura, ObjetoGema
+from epic_cavern.datos import Global
+from epic_cavern.datos_aventura import ObjetoAventura, ObjetoGema
 from epic_cavern.lexico import Comando
 from epic_cavern.main import load_data
+from epic_cavern.user_interfaces import ConsoleOutput
 
 
 class LastLineOutput(object):
@@ -18,7 +20,7 @@ class LastLineOutput(object):
 
 #############
 
-class AllLinesOutput(object):
+class AllLinesOutput(ConsoleOutput):
 
     def __init__(self):
         self._lines = list()
@@ -28,9 +30,6 @@ class AllLinesOutput(object):
         if self._trace:
             print(msg)
         self._lines.append(msg)
-
-    def print_salidas(self, msg):
-        self.print(msg)
 
     def last_line(self, index =2):
         index *= -1
