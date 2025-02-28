@@ -41,39 +41,39 @@ class MyTestCase(unittest.TestCase):
         self._commands(( "ABRIR HORNO", "COGER EMPANADA", "I", "FIN"))
         main_game()
         #print(self._out._lines[-3:])
-        self.assertEqual("Una empanada", self._out.last_line(2))
+        self.assertEqual("Una empanada", self._out.last_line())
 
         self._commands(( "E", "S", "leer inscripcion", "FIN"))
         main_game()
         #print(self._out._lines[-3:])
-        self.assertEqual("No den de comer al cofre.", self._out.last_line(2))
+        self.assertEqual("No den de comer al cofre.", self._out.last_line())
 
         #self._out.trace_on()
         self._run(( "S", "dar empanada", "I")) # "abrir cofre",
         #print(self._out._lines[-3:])
         #print(self._out._lines)
-        self.assertEqual("Saltas hacia atrás justo a tiempo de que no te arranque la mano.", self._out.last_line(3))
-        self.assertEqual("Llevas:", self._out.last_line(2))
+        self.assertEqual("Saltas hacia atrás justo a tiempo de que no te arranque la mano.", self._out.last_line(2))
+        self.assertEqual("Llevas:", self._out.last_line())
 
     def test_abrir_cofre_con_llave_y_coger_esmeralda(self):
         # self._out.trace_on()
         #self._run(("S", "S", "S", "S", "E", "N", "coger llave", "I"))
         self.test_coger_llave_del_charco()
         # self.assertEqual("loc38_Llave", self._estoy_en())
-        self.assertEqual("Una llave oxidada", self._out.last_line(2))
+        self.assertEqual("Una llave oxidada", self._out.last_line())
         #self._run(("S", "O", "O", "abrir cofre", "coger zafiro", "I"))
         self._run(("N", "O", "O", "O", "N", "O", "O", "O"))
         self.assertEqual("loc33_Cofre_auténtico", self._estoy_en())
         self._run(("abrir cofre", "coger zafiro", "I"))
-        self.assertEqual("Llevas:", self._out.last_line(4))
-        self.assertEqual("Una llave oxidada", self._out.last_line(3))
-        self.assertEqual("Un zafiro", self._out.last_line(2))
+        self.assertEqual("Llevas:", self._out.last_line(3))
+        self.assertEqual("Una llave oxidada", self._out.last_line(2))
+        self.assertEqual("Un zafiro", self._out.last_line())
 
     def test_diapason_y_teletransporte_1(self):
         # self._out.trace_on()
         self._run(("S", "S", "S", "S", "E", "E", "S", "S", "coger diapason", "I"))
         self.assertEqual("loc48_Sala_de_música", self._estoy_en())
-        self.assertEqual("Un diapasón", self._out.last_line(2))
+        self.assertEqual("Un diapasón", self._out.last_line())
         self._run(("O", "O", "ex inscripción", "edu"))
         self.assertEqual("loc1_Caida", self._estoy_en())
         # self.assertEqual("", self._out.last_line(2))
@@ -82,12 +82,12 @@ class MyTestCase(unittest.TestCase):
         #self._out.trace_on()
         self._run(("S", "S", "S", "S", "E", "E", "S", "E", "N", "coger idolo", "I"))
         self.assertEqual("loc55_Ídolo", self._estoy_en())
-        self.assertEqual("Un ídolo", self._out.last_line(2))
+        self.assertEqual("Un ídolo", self._out.last_line())
         self._run(("S", "O", "N", "O", "O", "N", "N", "N", "E", "ex investigador", "dar idolo", "I"))
         self.assertEqual("loc3_Investigador", self._estoy_en())
         #print(self._out._lines[-10:])
         exp = "Le das el ídolo.\n'Muy interesante, voy a estudiarlo. Puede que nos veamos pronto'\nEl investigador se marcha."
-        self.assertEqual(exp, self._out.last_line(3))
+        self.assertEqual(exp, self._out.last_line(2))
         self.assertEqual("Llevas:", self._out.last_line())
 
     def test_abrir_puerta_investigador_y_Coger_diamante(self):
@@ -135,8 +135,8 @@ class MyTestCase(unittest.TestCase):
         #print(self._out._lines[-8:])
         self.assertEqual("loc15_Ojos_rojos", self._estoy_en())
         self.assertEqual("Un rubí", self._out.last_line())
-        self.assertEqual("Un cuchillo", self._out.last_line(3))
-        self.assertEqual("Una vara dorada", self._out.last_line(4))
+        self.assertEqual("Un cuchillo", self._out.last_line(2))
+        self.assertEqual("Una vara dorada", self._out.last_line(3))
 
     def test_coger_diamante(self):
         self.test_coger_vara()
@@ -153,7 +153,7 @@ class MyTestCase(unittest.TestCase):
         self._run(("S", "E", "E", "N", "E", "ex balanza", "ex balanza", "dejar diapason", "coger esmeralda", "m", "i"))
         # print(self._out._lines[-6:])
         self.assertEqual("loc9_Balanza", self._estoy_en())
-        self.assertEqual("Llevas:", self._out.last_line(3))
+        self.assertEqual("Llevas:", self._out.last_line(2))
         self.assertEqual("Una esmeralda", self._out.last_line())
 
     def test_camino_del_heroe_y_coger_jade(self):
@@ -178,7 +178,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(self._out.last_line().startswith("No has conseguido todas las gemas"))
 
     def test_coger_llave_del_charco(self):
-        # self._out.trace_on()
+        #self._out.trace_on()
         # self.test_diapason_y_teletransporte_1()
         self._run(("S", "E", "E", "E", "S", "S", "E", "S", "S", "E", "S", "ex charco", "coger llave", "i"))
         self.assertEqual("loc63_Charco", self._estoy_en())

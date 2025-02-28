@@ -27,6 +27,43 @@ class ConsoleOutput(object):
     def end_two_columns(self):
         pass
 
+    def print_map(self, map, current_loc):
+        #table = Table(title="Automapa.")
+        # self.print("")
+        for row in map:
+            linea_1 = str()
+            linea_2 = str()
+            for loc in row:
+                if loc is not None and loc.is_discovered():
+                    if loc == current_loc:
+                        linea_1 += "X"
+                    else:
+                        linea_1 += "*"
+                    if loc.has_east():
+                        linea_1 += "--"
+                    else:
+                        linea_1 += "  "
+                    if loc.has_south():
+                        linea_2 += "|  "
+                    else:
+                        linea_2 += "   "
+                else:
+                    linea_1 += "   "
+                    linea_2 += "   "
+            if linea_1.strip() != "":
+                self.print(linea_1)
+            if linea_2.strip() != "":
+                self.print(linea_2)
+
+            #self.print("Automap no available in this interface.")
+
+
+    def ready_to_save(self):
+        pass
+
+    def re_init(self):
+        pass
+
     @staticmethod
     def _s_print(msg):
         print(msg)
@@ -57,6 +94,8 @@ class ConsoleRichOutput(ConsoleOutput):
         self._table = None
 
     def print(self, msg):
+        if self.console is None:
+            self.console = Console()
         self.console.print(msg)
 
     # alguinas GUI les viene bien diferenciar.
@@ -93,3 +132,16 @@ class ConsoleRichOutput(ConsoleOutput):
     def end_two_columns(self):
         self.console.print(self._table)
         self._table = None
+
+    def ready_to_save(self):
+        """
+        Rich tiene clases que no son compatibles con pickle, así que hay que
+        destruirlas antes de salvar.
+
+        :return:
+        """
+        self.console = None
+        self._table = None
+
+    def re_init(self):
+        self.console = Console()

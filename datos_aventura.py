@@ -24,6 +24,11 @@ class Localizacion(object):
         self._estado = Global.get_instance()
         self._output = self._estado.output()
 
+        # automap
+        self._x = None
+        self._y = None
+        self._discovered = False
+
         self.comandos = {
             "N": {"*": self.mover_norte},
             "S": {"*": self.mover_sur},
@@ -33,6 +38,25 @@ class Localizacion(object):
             "DEJAR": {"*": self.dejar},
             "EXAMINAR": {"*": self.examinar},
         }
+
+    # Methods for automap
+
+    def set_y_x(self, y, x):
+        self._x = x
+        self._y = y
+
+    def y_x(self):
+        return self._y, self._x
+
+    def is_discovered(self):
+        return self._discovered
+
+    def has_east(self):
+        return 2 in self.conexiones
+
+    def has_south(self):
+        return 1 in self.conexiones
+
 
     def __str__(self):
         return str(self._nombre) + " / Conexiones: " + str(self.conexiones)
@@ -54,10 +78,22 @@ class Localizacion(object):
         :param otra_localizacion: Instancia de Localizacion a conectar.
         """
         self.conexiones[direccion] = otra_localizacion
+        if self._x is not None:
+            if direccion == 0:
+                otra_localizacion.set_y_x(self._y-1, self._x)
+            if direccion == 1:
+                otra_localizacion.set_y_x(self._y+1, self._x)
+            if direccion == 2:
+                otra_localizacion.set_y_x(self._y, self._x+1)
+            if direccion == 3:
+                otra_localizacion.set_y_x(self._y, self._x-1)
+
         if not doble_sentido:
             return
         direccion_conraria = movimiento_doble_sentido[direccion]
         otra_localizacion.conectar(direccion_conraria, self, False)
+
+
 
     def agregar_examinable(self, token, descripción):
         self.examinables[token] = descripción
@@ -70,7 +106,9 @@ class Localizacion(object):
     def mostrar_descripcion(self):
         """
         Devuelve una descripción detallada de la localización, incluyendo objetos visibles y direcciones.
+        Cambia discovered a True, por lo que el mapa sabe que el jugador ha estado aquí
         """
+        self._discovered = True
         descripcion = self._cadena_descripción()
         if self.pnj:
             descripcion += self.pnj.esta_aqui() + "\n"
@@ -222,7 +260,7 @@ class LocalizacionPuertaLLave(Localizacion):
     def mover_oeste(self, command):
         # Asumo que hay salida
         if (self.puerta_cerrada):
-            print("La puerta está cerrada")
+            print("La puerta está cerrada.")
             return Resultado.HECHO
         return self._mover(2)
 
@@ -232,7 +270,7 @@ class LocalizacionPuertaLLave(Localizacion):
             print("Abres la puerta con la llave.")
             self.puerta_cerrada = True
         else:
-            print("No puedes hacer eso")  # Mensajes más cocnretos.
+            print("No puedes hacer eso.")  # Mensajes más cocnretos.
         return Resultado.HECHO
 
 
@@ -948,7 +986,9 @@ def load_data():
 
     # Localizaciones
     loc1_Caida = Localizacion("loc1_Caida", "Has entrado en la caverna y ya no hay marcha atrás. Escapa o muere.")
+
     loc2_Vacía = LocalizaciónVacía("loc2_Vacía")
+
     loc3_Investigador = Localizacion("loc3_Investigador", "Parte del suelo de está caverna está decorado con lineas talladas en la piedra que no parecen tener ningún sentido.")
     loc5_Vacía = LocalizaciónVacía("loc5_Vacía")
     loc7_Vacía = LocalizaciónVacía("loc7_Vacía")
@@ -1003,11 +1043,17 @@ def load_data():
     """
 
     # Conexiones
+    loc1_Caida.set_y_x(2, 2)
     loc1_Caida.conectar(1, loc2_Vacía)
+
     loc2_Vacía.conectar(2, loc3_Investigador)
     loc2_Vacía.conectar(1, loc17_Vacía)
+
     loc3_Investigador.conectar(2, loc5_Vacía)
-    loc7_Vacía.conectar(1, loc5_Vacía)
+
+    # loc7_Vacía.conectar(1, loc5_Vacía)
+    loc5_Vacía.conectar(0, loc7_Vacía)
+
     loc7_Vacía.conectar(2, loc9_Balanza)
     loc5_Vacía.conectar(2, loc11_Vacía)
     loc11_Vacía.conectar(2, loc13_Vacía)
@@ -1017,8 +1063,11 @@ def load_data():
     loc19_Vacía.conectar(2, loc21_Dibujos)
     loc17_Vacía.conectar(2, loc25_Vacía)
     loc17_Vacía.conectar(1, loc27_Vacía)
+
     loc27_Vacía.conectar(3, loc28_Cocina)
     loc27_Vacía.conectar(1, loc31_Inscripción)
+
+
     loc33_Cofre_auténtico.conectar(2, loc31_Inscripción)
     loc31_Inscripción.conectar(1, loc35_Mímico)
     loc31_Inscripción.conectar(2, loc37_Vacía)
@@ -1139,6 +1188,7 @@ Utur cruzó la gran serpiente azul.
     estado = Global.get_instance()
     estado.set_localizacion(loc1_Caida)
     estado._locs = locs
+    estado._map = create_map(locs)
 
     # Objetos
 
@@ -1203,3 +1253,16 @@ Utur cruzó la gran serpiente azul.
         "Topacio": topacio,
         "ZAFIRO": zafiro,
     }
+
+    # Pendiente de probar
+def create_map(dict_locs):
+    # Crea un mapa de 10x10 con todo a None
+    Max_Dim = 12
+    row_list = [None for x in range(0, Max_Dim)]
+    map_list = [list(row_list) for x in range(0, Max_Dim)]
+    for loc in dict_locs.values():
+        x, y = loc.y_x()
+        if x is not None and y is not None:
+            # print(x, y)
+            map_list[x][y] = loc
+    return map_list

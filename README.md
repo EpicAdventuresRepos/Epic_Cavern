@@ -9,9 +9,9 @@ Entra en la Epic Cavern, busca todos los tesoros y escapa con vida, o muere y vu
 + 6 tesoros que encontrar.
 + 5 objetos que te ayudarán en tu aventura.
 + 7 puzles para resolver.
-Comando ayuda con los comandos básicos.
++ Comando ayuda con los comandos básicos.
 + Ejecutable para Windows.
-+ Y 80 pruebas automática para que no te falle nada.
++ Y 81 pruebas automática para que no falle nada.
 
 ----
 
@@ -21,6 +21,12 @@ Aprendes Python y, además, haces juegos de texto.
 [Curso >> Programa en Python y haz tus propios juegos de texto](https://epicadventures.itch.io/programa-python)
 
 --------
+
+Versión 0.03
++ Pantalal de inicio con comandos limitados.
++ Aiutomapa con el comando map.
++ Interfaz de texto mejorada con el módulo Rich.
+
 
 Versión 0.02
 + Se pueden usar preposiciones y artículos, pero se ignoran.

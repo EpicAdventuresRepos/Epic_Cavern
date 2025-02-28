@@ -1,7 +1,8 @@
 import unittest
 
 from epic_cavern.datos_aventura import Investigador, LocalizacionBalanza, LocalizacionOscura, \
-    LocalizacionOjos, LocalizacionLosetas, LocalizacionFinal, ObjetoGema, LocalizacionObjetoMaldito, ObjetoMaldito
+    LocalizacionOjos, LocalizacionLosetas, LocalizacionFinal, ObjetoGema, LocalizacionObjetoMaldito, ObjetoMaldito, \
+    create_map
 from epic_cavern.datos import Resultado
 from epic_cavern.test.test_helppers import BaseTest
 
@@ -443,6 +444,25 @@ class TestLocalizacionObjetoMaldito(BaseTest):
         self.assertEqual(last_line, expected)
         self.assertEqual(resultado, Resultado.HECHO)
 
+
+class TestAutomapa(BaseTest):
+    def setUp(self):
+        super().setUp("loc1_Caida")
+
+    def test_crea_mapa_vacío(self):
+        mapa = create_map(dict())
+        self.assertEqual(12, len(mapa))
+        for linea in mapa:
+            self.assertEqual(12, len(linea))
+            for elemento in linea:
+                self.assertIsNone(elemento)
+
+    """
+    def test_crea_mapa_por_defecto(self):
+        mapa = self.estado._map
+        self.assertIsNotNone(mapa[0][0])
+        self.assertEqual(mapa[0][0], self.loc)
+    """
 
 if __name__ == '__main__':
     unittest.main()

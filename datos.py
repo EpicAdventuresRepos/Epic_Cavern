@@ -34,11 +34,12 @@ class Global:
     def __init__(self):
         self.localizacion_actual = None
         self.inventario = {}
-        self._sve_dt = None
+        # self._sve_dt = None - No sé qué hace
         self._output = None
         self._input = None
         self._locs = None
         self._events = Eventos()
+        self._map = None
 
     def __str__(self):
         return f"Localización {self.localizacion_actual} / Inventario: {self.inventario}"

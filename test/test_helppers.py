@@ -31,7 +31,7 @@ class AllLinesOutput(ConsoleOutput):
             print(msg)
         self._lines.append(msg)
 
-    def last_line(self, index =2):
+    def last_line(self, index =1):
         index *= -1
         return self._lines[index]
 

@@ -52,12 +52,12 @@ def main_game():
 
     estado = Global.get_instance()
     output = estado.output()
+    # print("main_game - output console", output.console)
     _input = estado.input()
     eventos = estado.events_manager()
 
     # print(estado._locs)
-
-    mostrar_introducción(estado)
+    # mostrar_introducción(estado)
 
     resultado = None
     while resultado != Resultado.FIN_JUEGO:
@@ -122,7 +122,7 @@ def main_game():
             eventos.fin_comando(user_command)
 
     # Fin del juego.
-    output.print("Bye.")
+    # output.print("Bye.")
 
 
 def imprimir_objetos(loc_actual):
@@ -137,18 +137,24 @@ def imprimir_objetos(loc_actual):
 # Main screen
 
 def mensaje_inicial(output):
-    output.print(" Epic Caver v0.003 ")
+    output.print(" Epic Caver v0.03 ")
     output.print("-------------------")
     output.print("Comandos de la pantalla de acceso:")
     output.print("")
-    output.print("iniciar - Comienza una nueva partida.")
-    output.print("cargar  - Carga una partida salvada.")
-    output.print("ayuda   - Como jugar y comandos principales.")
-    output.print("salir   - Cierra el juego.")
+    output.print("iniciar - comienza una nueva partida.")
+    output.print("cargar  - carga una partida salvada.")
+    output.print("ayuda   - cómo jugar y comandos principales.")
+    output.print("salir   - cierra el juego.")
     output.print("")
     output.print("Escribe tu comando:")
 
+
 def main_screen():
+    """
+    :return:
+        True, empieza el juego.
+        False, termina.
+    """
     global output
 
     estado = Global.get_instance()
@@ -159,9 +165,10 @@ def main_screen():
 
     v, n, i = vocabulario()
     ana_lex = AnaLex(v, n, i, output)
-    allowed_tokens = ("INICIAR", "CARGAR", "AYUDA", "FIN_JUEGO")
+    allowed_tokens = ("INICIAR", "CARGAR_PARTIDA", "AYUDA", "FIN_JUEGO")
     exit_game = False
-    while not exit_game:
+    #while not exit_game:
+    while True:
         user_input = _input.input(">> ")
          # Completar
         comando, valido = ana_lex.procesar_palabras(user_input)
@@ -171,19 +178,24 @@ def main_screen():
             output.print("Ese comando no se usa aquí.\n")
             continue
         if comando.token_verbo == "INICIAR":
-            main_game()
-            exit_game = True
-        if comando.token_verbo == "CARGAR":
+            # main_game()
+            # exit_game = True
+            mostrar_introducción(estado)
+            return True
+        if comando.token_verbo == "CARGAR_PARTIDA":
             cmd_cargar(comando)
-            main_game()
-            exit_game = True
+            #main_game()
+            #exit_game = True
+            return True
         if comando.token_verbo == "AYUDA":
             cmd_ayuda(comando)
             _input.pulsa_intro()
             mensaje_inicial(output)
         if comando.token_verbo == "FIN_JUEGO":
-            exit_game = True
+            #exit_game = True
+            return False
 
+    # Nunca se llega aquí
     output.print("Bye.")
 
 
@@ -224,8 +236,26 @@ def cmd_examinar_inventario(comando):
 
 def cmd_guardar(comando):
     import pickle
+
+    estado = Global.get_instance()
+
+    # Tengo un cannot pickle '_thread.RLock' object
+    # a ver si descubro cuál es
+    # era rich
+    #estado._output = None # Error
+    #estado._input = None # Seguro
+    #estado._events = None # Seguro
+    #estado._map = None # Error
+    #estado.localizacion_actual = None # Error
+    #estado.inventario = None # Seguro
+    #estado._locs = None # Error
+    output.ready_to_save()
+
+    #data = pickle.dumps(estado)
     with open("save_game.pck", "wb") as save_file:
-        pickle.dump(Global.get_instance(), save_file)
+        pickle.dump(estado, save_file)
+
+    output.re_init()
     output.print("Guardado.")
     return Resultado.HECHO
 
@@ -235,9 +265,12 @@ def cmd_cargar(comando):
     with open("save_game.pck", "rb") as save_file:
         save_data = pickle.load(save_file)
     Global._instance = save_data
+
+    output.re_init()
     output.print("Cargado.")
     # Pulsa una tecla.
     # _input.pulsa_intro()
+    Global._instance._input.pulsa_intro()
     return Resultado.REINICIA
 
 
@@ -247,10 +280,10 @@ def cmd_ayuda(comando):
     output.row("n, s, e, o", "movimiento.")
     output.row("i", "muestra los objetos que llevas.")
     output.row("m", "descripción de la localización dónde estás.")
-    output.row("cargar, guardar", "carga o guarda tu aprtida en un fichero sobreescribiendo la anterior.")
+    output.row("cargar, guardar", "carga o guarda tu partida en un fichero sobreescribiendo la anterior.")
     output.row("fin", "sales del juego (sin grabar partida).")
     output.end_two_columns()
-    output.print("Si quiere pronunciar alguna palabra misteriosa, solo escríbela.")
+    output.print("Si quiere pronunciar alguna palabra misteriosa, escríbela.")
     return Resultado.HECHO
 
 
@@ -280,6 +313,9 @@ def cmd_no_pasa_nada(comando):
     output.print("No pasa nada.")
     return Resultado.HECHO
 
+def cmd_mapa(comando):
+    estado = Global.get_instance()
+    output.print_map(estado._map, estado.localizacion())
 
 def comandos_comunes():
     comandos = {
@@ -293,6 +329,7 @@ def comandos_comunes():
         "NO_MALDICION": {"*": cmd_no_pasa_nada},
         "SI_MALDICION": {"*": cmd_no_pasa_nada},
         "AYUDA": {"*": cmd_ayuda},
+        "MAP": {"*": cmd_mapa},
     }
     return comandos
 
@@ -309,9 +346,13 @@ def comandos_pantalla_principal():
 
 
 if __name__ == '__main__':
-    # Cargar datos iniciales
     load_data()
     load_interfaces()
-    main_game()
-    #main_screen()
+    running = True
+    while running:
+        running = main_screen()
+        if running:
+            main_game()
+            load_data()
+
 #C:\Users\rince\AppData\Local\Programs\Python\Python312\Scripts\pyinstaller --onefile main.py
